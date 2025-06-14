@@ -3,6 +3,7 @@
 
 #include "ui.h"
 #include "pdf.h"
+#include "key.h"
 
 GtkWidget *drawing_area;
 
@@ -142,6 +143,15 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Set drawing function
     gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), draw_function, NULL, NULL);
+
+    // Create key event controller
+    GtkEventController* key_controller = gtk_event_controller_key_new();
+
+    // Connect the key-released signal
+    g_signal_connect (key_controller, "key-pressed", G_CALLBACK(on_key_pressed), NULL);
+
+    // Add the controller to the window
+    gtk_widget_add_controller(window, key_controller);
 
     // Show window
     gtk_window_present(GTK_WINDOW(window));

@@ -2,6 +2,7 @@
 #include <poppler.h>
 
 #include "pdf.h"
+#include "ui.h"
 
 void load_PDF_file(char* path) {
     // Load PDF document
@@ -15,12 +16,27 @@ void load_PDF_file(char* path) {
     }
 
     document = poppler_document_new_from_file(uri, NULL, &error);
+    pdf_data.total_pages = poppler_document_get_n_pages(document);
     g_free(uri);
 
     if (!document) {
         g_print("Failed to open PDF: %s\n", error->message);
         g_error_free(error);
         return;
+    }
+}
+
+void next_PDF_page(void) {
+    if (pdf_data.current_page < pdf_data.total_pages - 1) {
+        pdf_data.current_page++;
+        gtk_widget_queue_draw(drawing_area);
+    }
+}
+
+void previous_PDF_page(void) {
+    if (pdf_data.current_page > 0) {
+        pdf_data.current_page--;
+        gtk_widget_queue_draw(drawing_area);
     }
 }
 
