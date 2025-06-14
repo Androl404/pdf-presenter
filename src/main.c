@@ -7,30 +7,11 @@
 
 PopplerDocument *document = NULL;
 char absolute_PDF_path[PATH_MAX + 1];
+PDF_data pdf_data = {0};
 
 int main(int argc, char **argv) {
-    if (argc < 2) {
-        g_print("Usage: %s <PDF file>\n", argv[0]);
-        return 1;
-    }
-
-    // Load PDF document
-    GError *error = NULL;
-    char *uri = g_filename_to_uri(realpath(argv[1], absolute_PDF_path), NULL, &error);
-
-    if (!uri) {
-        g_print("Failed to convert filename to URI: %s\n", error->message);
-        g_error_free(error);
-        return 1;
-    }
-
-    document = poppler_document_new_from_file(uri, NULL, &error);
-    g_free(uri);
-
-    if (!document) {
-        g_print("Failed to open PDF: %s\n", error->message);
-        g_error_free(error);
-        return 1;
+    if (argc >= 2) {
+        load_PDF_file(argv[1]);
     }
 
     // Initialize GTK and run the application

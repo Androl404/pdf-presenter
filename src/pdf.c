@@ -3,11 +3,32 @@
 
 #include "pdf.h"
 
+void load_PDF_file(char* path) {
+    // Load PDF document
+    GError *error = NULL;
+    char *uri = g_filename_to_uri(realpath(path, pdf_data.absolute_PDF_path), NULL, &error);
+
+    if (!uri) {
+        g_print("Failed to convert filename to URI: %s\n", error->message);
+        g_error_free(error);
+        return;
+    }
+
+    document = poppler_document_new_from_file(uri, NULL, &error);
+    g_free(uri);
+
+    if (!document) {
+        g_print("Failed to open PDF: %s\n", error->message);
+        g_error_free(error);
+        return;
+    }
+}
+
 // This function is called each time the drawing area gets resized
 void draw_function(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
     if (!document) return;
 
-    PopplerPage *page = poppler_document_get_page(document, 0); // First page
+    PopplerPage *page = poppler_document_get_page(document, pdf_data.current_page);
     if (!page) return;
 
     // Get page dimensions

@@ -1,4 +1,11 @@
+typedef struct {
+    char absolute_PDF_path[PATH_MAX + 1];
+    size_t current_page;
+} PDF_data;
+
 extern PopplerDocument *document;
-extern char absolute_PDF_path[PATH_MAX + 1]; // Stores the absolute file path of the PDF file
+extern PDF_data pdf_data;
+// extern char absolute_PDF_path[PATH_MAX + 1]; // Stores the absolute file path of the PDF file
 
 void draw_function(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data);
+void load_PDF_file(char* path);
