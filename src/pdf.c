@@ -20,7 +20,7 @@ void draw_function(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpo
     double scale = scale_x < scale_y ? scale_x : scale_y;
 
     // Clear background
-    cairo_set_source_rgb(cr, 0.5, 0.5, 0.5); // To set the background color
+    cairo_set_source_rgb(cr, 1, 1, 1); // To set the background color
     cairo_paint(cr);
 
     // Center the page

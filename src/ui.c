@@ -15,8 +15,10 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Create drawing area
     GtkWidget *drawing_area = gtk_drawing_area_new();
-    gtk_grid_attach(GTK_GRID(grid), popovermenubar, 1, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), drawing_area, 1, 2, 1, 1);
+    gtk_widget_set_hexpand(drawing_area, TRUE); // Set expansion properties for the drawing area
+    gtk_widget_set_vexpand(drawing_area, TRUE);
+    // gtk_grid_attach(GTK_GRID(grid), popovermenubar, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), drawing_area, 0, 0, 1, 1);
     gtk_window_set_child(GTK_WINDOW(window), grid);
 
     // Set drawing function

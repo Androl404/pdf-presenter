@@ -1,10 +1,12 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
+// #include <stdlib.h>
 
 #include "pdf.h"
 #include "ui.h"
 
 PopplerDocument *document = NULL;
+char absolute_PDF_path[PATH_MAX + 1];
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -14,7 +16,7 @@ int main(int argc, char **argv) {
 
     // Load PDF document
     GError *error = NULL;
-    char *uri = g_filename_to_uri(argv[1], NULL, &error);
+    char *uri = g_filename_to_uri(realpath(argv[1], absolute_PDF_path), NULL, &error);
 
     if (!uri) {
         g_print("Failed to convert filename to URI: %s\n", error->message);
