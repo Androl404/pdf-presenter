@@ -34,7 +34,7 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, gpoint
 }
 
 // Add these action callback functions
-static void open_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+void open_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     g_print("Open action triggered\n");
 
@@ -70,11 +70,18 @@ static void quit_action(GSimpleAction *action, GVariant *parameter, gpointer use
 
 static void about_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
+    const char* authors[] = {"Andrei ZEUCIANU"};
 
     GtkWidget *dialog = gtk_about_dialog_new();
-    gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "PDF Viewer");
-    gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), "1.0");
-    gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "A simple PDF viewer using GTK4 and Poppler");
+    gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "PDF Presenter");
+    gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), "0.1");
+    gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "A simple PDF presenter using GTK4 and Poppler");
+    gtk_about_dialog_set_authors(GTK_ABOUT_DIALOG(dialog), authors);
+    gtk_about_dialog_set_artists(GTK_ABOUT_DIALOG(dialog), authors);
+    gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog), GTK_LICENSE_MIT_X11);
+    gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://github.com/Androl404/pdf-presenter");
+    gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Repository on GitHub");
+    // gtk_about_dialog_set_wrap_license(GTK_ABOUT_DIALOG(dialog), TRUE);
 
     gtk_window_set_transient_for(GTK_WINDOW(dialog), window);
     gtk_widget_set_visible(dialog, TRUE);
@@ -148,7 +155,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     GtkEventController* key_controller = gtk_event_controller_key_new();
 
     // Connect the key-released signal
-    g_signal_connect (key_controller, "key-pressed", G_CALLBACK(on_key_pressed), NULL);
+    g_signal_connect(key_controller, "key-pressed", G_CALLBACK(on_key_pressed), NULL);
 
     // Add the controller to the window
     gtk_widget_add_controller(window, key_controller);
