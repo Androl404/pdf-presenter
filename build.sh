@@ -13,7 +13,7 @@ fi
 mkdir -p build
 
 # Compiler options
-COMPILER="gcc"
+COMPILER="cc" # gcc
 CFLAGS="$(pkg-config --cflags gtk4 poppler-glib)"
 CLIBS="$(pkg-config --libs gtk4 poppler-glib)"
 # CWARNINGS="-Wall -Wextra"
