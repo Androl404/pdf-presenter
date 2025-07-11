@@ -5,7 +5,8 @@
 #include "pdf.h"
 #include "key.h"
 
-GtkWidget *drawing_area;
+GtkWidget *current_page_drawing_area;
+GtkWidget *next_page_drawing_area;
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -21,7 +22,8 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, gpoint
 
         // Call your load_pdf function here
         load_PDF_file(filename);
-        gtk_widget_queue_draw(drawing_area);
+        gtk_widget_queue_draw(current_page_drawing_area);
+        gtk_widget_queue_draw(next_page_drawing_area);
 
         g_free(filename);
         g_object_unref(file);
@@ -134,22 +136,27 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
 void on_activate(GtkApplication *app, gpointer user_data) {
     // Create a new window
     GtkWidget *window = gtk_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(window), "PDF Viewer");
+    gtk_window_set_title(GTK_WINDOW(window), "PDF Presenter");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
 
     // Create drawing area
-    drawing_area = gtk_drawing_area_new();
+    current_page_drawing_area = gtk_drawing_area_new();
+    next_page_drawing_area = gtk_drawing_area_new();
     GtkWidget *menu_bar = create_menu_bar(GTK_WINDOW(window));
     GtkWidget *grid = gtk_grid_new();
 
-    gtk_widget_set_hexpand(drawing_area, TRUE); // Set expansion properties for the drawing area
-    gtk_widget_set_vexpand(drawing_area, TRUE);
-    gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), drawing_area, 0, 1, 1, 1);
+    gtk_widget_set_hexpand(current_page_drawing_area, TRUE); // Set expansion properties for the drawing area
+    gtk_widget_set_vexpand(current_page_drawing_area, TRUE);
+    gtk_widget_set_hexpand(next_page_drawing_area, TRUE);
+    gtk_widget_set_vexpand(next_page_drawing_area, TRUE);
+    gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 2, 1);
+    gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), next_page_drawing_area, 1, 1, 1, 1);
     gtk_window_set_child(GTK_WINDOW(window), grid);
 
     // Set drawing function
-    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), draw_function, NULL, NULL);
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(current_page_drawing_area), draw_current_page, NULL, NULL);
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(next_page_drawing_area), draw_next_page, NULL, NULL);
 
     // Create key event controller
     GtkEventController* key_controller = gtk_event_controller_key_new();
