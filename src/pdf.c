@@ -37,6 +37,7 @@ void next_PDF_page(void) {
 void previous_PDF_page(void) {
     if (pdf_data.current_page > 0) {
         pdf_data.current_page--;
+        gtk_widget_queue_draw(current_page_drawing_area);
         gtk_widget_queue_draw(next_page_drawing_area);
     }
 }
