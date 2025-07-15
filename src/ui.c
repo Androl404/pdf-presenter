@@ -147,6 +147,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     gtk_widget_set_hexpand(current_page_drawing_area, TRUE); // Set expansion properties for the drawing area
     gtk_widget_set_vexpand(current_page_drawing_area, TRUE);
+    gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(current_page_drawing_area), 450); // Setting the width of the current drawing area
     gtk_widget_set_hexpand(next_page_drawing_area, TRUE);
     gtk_widget_set_vexpand(next_page_drawing_area, TRUE);
     gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 2, 1);
