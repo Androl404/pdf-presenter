@@ -7,6 +7,7 @@
 
 GtkWidget *current_page_drawing_area;
 GtkWidget *next_page_drawing_area;
+GtkWidget *PDF_level_bar;
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -145,14 +146,21 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *menu_bar = create_menu_bar(GTK_WINDOW(window));
     GtkWidget *grid = gtk_grid_new();
 
+    // Create PDF level bar
+    PDF_level_bar = gtk_level_bar_new();
+
     gtk_widget_set_hexpand(current_page_drawing_area, TRUE); // Set expansion properties for the drawing area
     gtk_widget_set_vexpand(current_page_drawing_area, TRUE);
     gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(current_page_drawing_area), 450); // Setting the width of the current drawing area
     gtk_widget_set_hexpand(next_page_drawing_area, TRUE);
     gtk_widget_set_vexpand(next_page_drawing_area, TRUE);
+
     gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 2, 1);
     gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 1, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), next_page_drawing_area, 1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), PDF_level_bar, 0, 2, 2, 1);
+
+    // gtk_level_bar_add_offset_value(GTK_LEVEL_BAR(PDF_level_bar), GTK_LEVEL_BAR_OFFSET_LOW, 0.10);
     gtk_window_set_child(GTK_WINDOW(window), grid);
 
     // Set drawing function
@@ -170,4 +178,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Show window
     gtk_window_present(GTK_WINDOW(window));
+
+    // Load PDF from command line arguments
+    load_defered_pdf();
 }

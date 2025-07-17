@@ -1,8 +1,30 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
 
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "pdf.h"
 #include "ui.h"
+
+char pdf_to_load[PATH_MAX + 1] = {0};
+
+gboolean defer_pdf_loading(int argc, char **argv) {
+    if (argc >= 2) {
+        strcpy(pdf_to_load, argv[1]);
+        // strcpy_s is not a available in the C standard library
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void load_defered_pdf(void) {
+    if (pdf_to_load[0] != 0)
+        load_PDF_file(pdf_to_load);
+}
 
 void load_PDF_file(char* path) {
     // Load PDF document
@@ -17,7 +39,14 @@ void load_PDF_file(char* path) {
 
     document = poppler_document_new_from_file(uri, NULL, &error);
     pdf_data.total_pages = poppler_document_get_n_pages(document);
+    pdf_data.current_page = 0;
     g_free(uri);
+
+    // Set level bar
+    gtk_level_bar_set_min_value(GTK_LEVEL_BAR(PDF_level_bar), 0.0);
+    gtk_level_bar_set_max_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.total_pages);
+    gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), 1.0);
+    gtk_level_bar_set_mode(GTK_LEVEL_BAR(PDF_level_bar), GTK_LEVEL_BAR_MODE_CONTINUOUS);
 
     if (!document) {
         g_print("Failed to open PDF: %s\n", error->message);
@@ -27,18 +56,22 @@ void load_PDF_file(char* path) {
 }
 
 void next_PDF_page(void) {
+    if (pdf_data.absolute_PDF_path[0] == 0) return;
     if (pdf_data.current_page < pdf_data.total_pages - 1) {
         pdf_data.current_page++;
         gtk_widget_queue_draw(current_page_drawing_area);
         gtk_widget_queue_draw(next_page_drawing_area);
+        gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.current_page + 1);
     }
 }
 
 void previous_PDF_page(void) {
+    if (pdf_data.absolute_PDF_path[0] == 0) return;
     if (pdf_data.current_page > 0) {
         pdf_data.current_page--;
         gtk_widget_queue_draw(current_page_drawing_area);
         gtk_widget_queue_draw(next_page_drawing_area);
+        gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.current_page + 1);
     }
 }
 

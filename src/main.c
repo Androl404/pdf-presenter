@@ -1,18 +1,14 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
-// #include <stdlib.h>
 
 #include "pdf.h"
 #include "ui.h"
 
 PopplerDocument *document = NULL;
-char absolute_PDF_path[PATH_MAX + 1];
 PDF_data pdf_data = {0};
 
 int main(int argc, char **argv) {
-    if (argc >= 2) {
-        load_PDF_file(argv[1]);
-    }
+    defer_pdf_loading(argc, argv);
 
     // Initialize GTK and run the application
     GtkApplication *app = gtk_application_new("com.example.pdfviewer", G_APPLICATION_DEFAULT_FLAGS);
