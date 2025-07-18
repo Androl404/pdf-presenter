@@ -52,6 +52,9 @@ void load_PDF_file(const char* path) {
         g_error_free(error);
         return;
     }
+
+    // Update slides label
+    update_slides_label();
 }
 
 void next_PDF_page(void) {
