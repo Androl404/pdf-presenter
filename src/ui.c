@@ -5,7 +5,10 @@
 #include "pdf.h"
 #include "key.h"
 
-GtkWidget *drawing_area;
+GtkWidget *current_page_drawing_area;
+GtkWidget *next_page_drawing_area;
+GtkWidget *PDF_level_bar;
+GtkWidget *state_label;
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -21,7 +24,8 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, gpoint
 
         // Call your load_pdf function here
         load_PDF_file(filename);
-        gtk_widget_queue_draw(drawing_area);
+        gtk_widget_queue_draw(current_page_drawing_area);
+        gtk_widget_queue_draw(next_page_drawing_area);
 
         g_free(filename);
         g_object_unref(file);
@@ -131,25 +135,66 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     return menu_bar;
 }
 
+void update_slides_label() {
+    char label_string[(10 + (2*(pdf_data.total_pages / 10) + 1)) * sizeof(char)];
+    sprintf(label_string, "Slide %d of %d", pdf_data.current_page + 1, pdf_data.total_pages);
+    if (pdf_data.absolute_PDF_path[0] != 0) {
+        gtk_label_set_label(GTK_LABEL(state_label), label_string);
+    } else {
+        gtk_label_set_label(GTK_LABEL(state_label), "Slides counter");
+    }
+}
+
 void on_activate(GtkApplication *app, gpointer user_data) {
     // Create a new window
     GtkWidget *window = gtk_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(window), "PDF Viewer");
+    gtk_window_set_title(GTK_WINDOW(window), "PDF Presenter");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
 
     // Create drawing area
-    drawing_area = gtk_drawing_area_new();
+    current_page_drawing_area = gtk_drawing_area_new();
+    next_page_drawing_area = gtk_drawing_area_new();
     GtkWidget *menu_bar = create_menu_bar(GTK_WINDOW(window));
     GtkWidget *grid = gtk_grid_new();
 
-    gtk_widget_set_hexpand(drawing_area, TRUE); // Set expansion properties for the drawing area
-    gtk_widget_set_vexpand(drawing_area, TRUE);
-    gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), drawing_area, 0, 1, 1, 1);
+    GtkWidget *center_buttons_box = gtk_center_box_new();
+    gtk_widget_set_margin_start(center_buttons_box, 20);
+    gtk_widget_set_margin_end(center_buttons_box, 20);
+    gtk_widget_set_margin_top(center_buttons_box, 7);
+    gtk_widget_set_margin_bottom(center_buttons_box, 7);
+    // gtk_box_set_baseline_position(GTK_BOX(buttons_box), GTK_BASELINE_POSITION_CENTER);
+    GtkWidget *button_prev = gtk_button_new_with_label("Previous");
+    g_signal_connect(button_prev, "clicked", G_CALLBACK(previous_PDF_page), window);
+    state_label = gtk_label_new("");
+    update_slides_label(); // To set basic label
+    GtkWidget *button_next = gtk_button_new_with_label("Next");
+    g_signal_connect(button_next, "clicked", G_CALLBACK(next_PDF_page), window);
+
+    gtk_center_box_set_start_widget(GTK_CENTER_BOX(center_buttons_box), button_prev);
+    gtk_center_box_set_center_widget(GTK_CENTER_BOX(center_buttons_box), state_label);
+    gtk_center_box_set_end_widget(GTK_CENTER_BOX(center_buttons_box), button_next);
+
+    // Create PDF level bar
+    PDF_level_bar = gtk_level_bar_new();
+
+    gtk_widget_set_hexpand(current_page_drawing_area, TRUE); // Set expansion properties for the drawing area
+    gtk_widget_set_vexpand(current_page_drawing_area, TRUE);
+    gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(current_page_drawing_area), 450); // Setting the width of the current drawing area
+    gtk_widget_set_hexpand(next_page_drawing_area, TRUE);
+    gtk_widget_set_vexpand(next_page_drawing_area, TRUE);
+
+    gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 2, 1);
+    gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), next_page_drawing_area, 1, 1, 1, 2);
+    gtk_grid_attach(GTK_GRID(grid), center_buttons_box, 0, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), PDF_level_bar, 0, 3, 2, 1);
+
+    // gtk_level_bar_add_offset_value(GTK_LEVEL_BAR(PDF_level_bar), GTK_LEVEL_BAR_OFFSET_LOW, 0.10);
     gtk_window_set_child(GTK_WINDOW(window), grid);
 
     // Set drawing function
-    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), draw_function, NULL, NULL);
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(current_page_drawing_area), draw_current_page, NULL, NULL);
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(next_page_drawing_area), draw_next_page, NULL, NULL);
 
     // Create key event controller
     GtkEventController* key_controller = gtk_event_controller_key_new();
@@ -162,4 +207,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Show window
     gtk_window_present(GTK_WINDOW(window));
+
+    // Load PDF from command line arguments
+    load_defered_pdf();
 }
