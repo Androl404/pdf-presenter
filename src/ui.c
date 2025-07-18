@@ -164,9 +164,11 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_bottom(center_buttons_box, 7);
     // gtk_box_set_baseline_position(GTK_BOX(buttons_box), GTK_BASELINE_POSITION_CENTER);
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
+    g_signal_connect(button_prev, "clicked", G_CALLBACK(previous_PDF_page), window);
     state_label = gtk_label_new("");
     update_slides_label(); // To set basic label
     GtkWidget *button_next = gtk_button_new_with_label("Next");
+    g_signal_connect(button_next, "clicked", G_CALLBACK(next_PDF_page), window);
 
     gtk_center_box_set_start_widget(GTK_CENTER_BOX(center_buttons_box), button_prev);
     gtk_center_box_set_center_widget(GTK_CENTER_BOX(center_buttons_box), state_label);
