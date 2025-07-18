@@ -9,12 +9,11 @@
 #include "pdf.h"
 #include "ui.h"
 
-char pdf_to_load[PATH_MAX + 1] = {0};
+char *pdf_to_load = NULL;
 
 gboolean defer_pdf_loading(int argc, char **argv) {
     if (argc >= 2) {
-        strcpy(pdf_to_load, argv[1]);
-        // strcpy_s is not a available in the C standard library
+        pdf_to_load = argv[1];
         return true;
     } else {
         return false;
@@ -22,11 +21,11 @@ gboolean defer_pdf_loading(int argc, char **argv) {
 }
 
 void load_defered_pdf(void) {
-    if (pdf_to_load[0] != 0)
+    if (pdf_to_load != NULL)
         load_PDF_file(pdf_to_load);
 }
 
-void load_PDF_file(char* path) {
+void load_PDF_file(const char* path) {
     // Load PDF document
     GError *error = NULL;
     char *uri = g_filename_to_uri(realpath(path, pdf_data.absolute_PDF_path), NULL, &error);
