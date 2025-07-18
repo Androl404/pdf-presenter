@@ -9,6 +9,7 @@ GtkWidget *current_page_drawing_area;
 GtkWidget *next_page_drawing_area;
 GtkWidget *PDF_level_bar;
 GtkWidget *state_label;
+GtkWidget *datetime_label;
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -145,6 +146,14 @@ void update_slides_label() {
     }
 }
 
+gboolean sync_datetime_label(gpointer user_data) {
+    GDateTime *time = g_date_time_new_now_local();
+    char seconds[34];
+    sprintf(seconds, "Local time: %04d/%02d/%02d %02d:%02d:%02d", g_date_time_get_year(time), g_date_time_get_month(time), g_date_time_get_day_of_month(time), g_date_time_get_hour(time), g_date_time_get_minute(time), g_date_time_get_second(time));
+    gtk_label_set_label(GTK_LABEL(datetime_label), seconds);
+    return TRUE;
+}
+
 void on_activate(GtkApplication *app, gpointer user_data) {
     // Create a new window
     GtkWidget *window = gtk_application_window_new(app);
@@ -165,10 +174,17 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // gtk_box_set_baseline_position(GTK_BOX(buttons_box), GTK_BASELINE_POSITION_CENTER);
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
     g_signal_connect(button_prev, "clicked", G_CALLBACK(previous_PDF_page), window);
+
+    // Slides label creation and initialization
     state_label = gtk_label_new("");
     update_slides_label(); // To set basic label
+
     GtkWidget *button_next = gtk_button_new_with_label("Next");
     g_signal_connect(button_next, "clicked", G_CALLBACK(next_PDF_page), window);
+
+    // Date time label creation & update
+    datetime_label = gtk_label_new("");
+    g_timeout_add_seconds(1, sync_datetime_label, NULL);
 
     gtk_center_box_set_start_widget(GTK_CENTER_BOX(center_buttons_box), button_prev);
     gtk_center_box_set_center_widget(GTK_CENTER_BOX(center_buttons_box), state_label);
@@ -184,10 +200,11 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_vexpand(next_page_drawing_area, TRUE);
 
     gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 2, 1);
-    gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), next_page_drawing_area, 1, 1, 1, 2);
-    gtk_grid_attach(GTK_GRID(grid), center_buttons_box, 0, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), PDF_level_bar, 0, 3, 2, 1);
+    gtk_grid_attach(GTK_GRID(grid), datetime_label, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), next_page_drawing_area, 1, 1, 1, 3);
+    gtk_grid_attach(GTK_GRID(grid), center_buttons_box, 0, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), PDF_level_bar, 0, 4, 2, 1);
 
     // gtk_level_bar_add_offset_value(GTK_LEVEL_BAR(PDF_level_bar), GTK_LEVEL_BAR_OFFSET_LOW, 0.10);
     gtk_window_set_child(GTK_WINDOW(window), grid);
