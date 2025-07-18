@@ -136,8 +136,10 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
 }
 
 void update_slides_label() {
+    char label_string[(10 + (2*(pdf_data.total_pages / 10) + 1)) * sizeof(char)];
+    sprintf(label_string, "Slide %d of %d", pdf_data.current_page + 1, pdf_data.total_pages);
     if (pdf_data.absolute_PDF_path[0] != 0) {
-        gtk_label_set_label(GTK_LABEL(state_label), "Slide 1 of 10 (to automate)");
+        gtk_label_set_label(GTK_LABEL(state_label), label_string);
     } else {
         gtk_label_set_label(GTK_LABEL(state_label), "Slides counter");
     }
