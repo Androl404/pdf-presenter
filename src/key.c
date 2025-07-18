@@ -27,6 +27,8 @@ gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint k
     case GDK_KEY_K:
     case GDK_KEY_p:
     case GDK_KEY_P:
+    case GDK_KEY_Down:
+    case GDK_KEY_Left:
         // g_print("Key 'p' or 'P' was pressed\n");
         previous_PDF_page();
         // Add your logic here
@@ -38,11 +40,18 @@ gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint k
     case GDK_KEY_J:
     case GDK_KEY_n:
     case GDK_KEY_N:
+    case GDK_KEY_Up:
+    case GDK_KEY_Right:
         // g_print("Key 'n' or 'N' was pressed\n");
         next_PDF_page();
         // g_print("%d on %d", pdf_data.current_page, pdf_data.total_pages);
         // Add your logic here
         return TRUE; // Event handled
+
+    case GDK_KEY_q:
+    case GDK_KEY_Q:
+        exit(0);
+        return TRUE;
 
     case GDK_KEY_o:
         if (state & GDK_CONTROL_MASK) {
