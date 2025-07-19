@@ -65,12 +65,11 @@ void load_PDF_file(const char* path) {
 }
 
 void next_PDF_page(void) {
-    // Verify if a PDF file is opened
-    if (pdf_data.absolute_PDF_path[0] == 0)
+    // Verify if a PDF file is opened and the PDF page exists
+    if (pdf_data.absolute_PDF_path[0] == 0 || !(pdf_data.current_page < pdf_data.total_pages - 1)) {
+        gtk_widget_error_bell(current_page_drawing_area);
         return;
-    // Verify if we are in the PDF pages
-    if (!(pdf_data.current_page < pdf_data.total_pages - 1))
-        return;
+    }
 
     // Actually update PDF pages
     pdf_data.current_page++;
@@ -83,12 +82,11 @@ void next_PDF_page(void) {
 }
 
 void previous_PDF_page(void) {
-    // Verify if a PDF file is opened
-    if (pdf_data.absolute_PDF_path[0] == 0)
+    // Verify if a PDF file is opened and if the PDF page exists
+    if (pdf_data.absolute_PDF_path[0] == 0 || !(pdf_data.current_page > 0)) {
+        gtk_widget_error_bell(current_page_drawing_area);
         return;
-    // Verify if we are in the PDF pages
-    if (!(pdf_data.current_page > 0))
-        return;
+    }
 
     // Actually update PDF pages
     pdf_data.current_page--;
