@@ -164,8 +164,47 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // Create drawing area
     current_page_drawing_area = gtk_drawing_area_new();
     next_page_drawing_area = gtk_drawing_area_new();
+    // gtk_widget_set_can_focus(current_page_drawing_area, true);
+    // gtk_widget_set_can_focus(next_page_drawing_area, true);
     GtkWidget *menu_bar = create_menu_bar(GTK_WINDOW(window));
     GtkWidget *grid = gtk_grid_new();
+
+    // Create separators
+    GtkWidget* infos_separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+    GtkWidget *vertical_separator = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
+
+    // Create current slide label
+    GtkWidget* current_slide_label = gtk_label_new("Current slide");
+    gtk_widget_set_halign(current_slide_label, GTK_ALIGN_START);
+    gtk_widget_set_margin_start(current_slide_label, 6);
+    gtk_widget_set_margin_bottom(current_slide_label, 3);
+
+    // Create newt slide label
+    GtkWidget *next_slide_label = gtk_label_new("Next slide");
+    gtk_widget_set_halign(next_slide_label, GTK_ALIGN_START);
+    gtk_widget_set_margin_start(next_slide_label, 6);
+    gtk_widget_set_margin_bottom(current_slide_label, 3);
+
+    // Set current slide font
+    PangoAttrList *attrlist = pango_attr_list_new();
+    PangoFontDescription * font_desc = pango_font_description_new();
+    pango_font_description_set_size(font_desc, 30 * PANGO_SCALE);
+    pango_font_description_set_weight(font_desc, PANGO_WEIGHT_BOLD);
+    PangoAttribute *attr = pango_attr_font_desc_new(font_desc);
+    pango_attr_list_insert(attrlist, attr);
+    gtk_label_set_attributes(GTK_LABEL(current_slide_label), attrlist);
+
+    // Set next slide font
+    attrlist = pango_attr_list_new();
+    font_desc = pango_font_description_new();
+    pango_font_description_set_size(font_desc, 20 * PANGO_SCALE);
+    pango_font_description_set_weight(font_desc, PANGO_WEIGHT_BOLD);
+    attr = pango_attr_font_desc_new(font_desc);
+    pango_attr_list_insert(attrlist, attr);
+    gtk_label_set_attributes(GTK_LABEL(next_slide_label), attrlist);
+
+    // Create notes text view
+    GtkWidget *notes_text_view = gtk_text_view_new();
 
     // Create previous button and callback
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
@@ -203,8 +242,8 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *infos_center_box = gtk_center_box_new();
     gtk_widget_set_margin_start(infos_center_box, 10);
     gtk_widget_set_margin_end(infos_center_box, 10);
-    gtk_widget_set_margin_top(infos_center_box, 7);
-    gtk_widget_set_margin_bottom(infos_center_box, 7);
+    gtk_widget_set_margin_top(infos_center_box, 4);
+    gtk_widget_set_margin_bottom(infos_center_box, 4);
 
     // Initialize PDF path label
     pdf_path_label = gtk_label_new("");
@@ -231,13 +270,18 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // The following is awkward
     gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(next_page_drawing_area), 300); // Setting the width of the next drawing area
 
-    // Attach widgets to gridsync_datetime_label
+    // Attach widgets to grid
     gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 2, 1);
     gtk_grid_attach(GTK_GRID(grid), infos_center_box, 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), next_page_drawing_area, 1, 1, 1, 3);
-    gtk_grid_attach(GTK_GRID(grid), slides_buttons_box, 0, 3, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), PDF_level_bar, 0, 4, 2, 1);
+    gtk_grid_attach(GTK_GRID(grid), infos_separator, 0, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), current_slide_label, 0, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 4, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), vertical_separator, 1, 1, 1, 3);
+    gtk_grid_attach(GTK_GRID(grid), next_slide_label, 2, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), next_page_drawing_area, 2, 2, 1, 4);
+    gtk_grid_attach(GTK_GRID(grid), notes_text_view, 2, 5, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), slides_buttons_box, 0, 5, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), PDF_level_bar, 0, 6, 2, 1);
 
     // gtk_level_bar_add_offset_value(GTK_LEVEL_BAR(PDF_level_bar), GTK_LEVEL_BAR_OFFSET_LOW, 0.10);
     gtk_window_set_child(GTK_WINDOW(window), grid);
