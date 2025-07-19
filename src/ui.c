@@ -10,6 +10,7 @@ GtkWidget *next_page_drawing_area;
 GtkWidget *PDF_level_bar;
 GtkWidget *state_label;
 GtkWidget *datetime_label;
+GtkWidget *pdf_path_label;
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -91,7 +92,7 @@ static void about_action(GSimpleAction *action, GVariant *parameter, gpointer us
     gtk_window_set_transient_for(GTK_WINDOW(dialog), window);
     gtk_widget_set_visible(dialog, TRUE);
 
-    g_signal_connect(dialog, "response", G_CALLBACK(gtk_window_destroy), NULL);
+    // g_signal_connect(dialog, "response", G_CALLBACK(gtk_window_destroy), NULL);
 }
 
 static GtkWidget* create_menu_bar(GtkWindow *window) {
@@ -166,12 +167,6 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *menu_bar = create_menu_bar(GTK_WINDOW(window));
     GtkWidget *grid = gtk_grid_new();
 
-    GtkWidget *center_buttons_box = gtk_center_box_new();
-    gtk_widget_set_margin_start(center_buttons_box, 20);
-    gtk_widget_set_margin_end(center_buttons_box, 20);
-    gtk_widget_set_margin_top(center_buttons_box, 7);
-    gtk_widget_set_margin_bottom(center_buttons_box, 7);
-    // gtk_box_set_baseline_position(GTK_BOX(buttons_box), GTK_BASELINE_POSITION_CENTER);
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
     g_signal_connect(button_prev, "clicked", G_CALLBACK(previous_PDF_page), window);
 
@@ -182,28 +177,55 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *button_next = gtk_button_new_with_label("Next");
     g_signal_connect(button_next, "clicked", G_CALLBACK(next_PDF_page), window);
 
+    GtkWidget *slides_buttons_box = gtk_center_box_new();
+    gtk_widget_set_margin_start(slides_buttons_box, 15);
+    gtk_widget_set_margin_end(slides_buttons_box, 15);
+    gtk_widget_set_margin_top(slides_buttons_box, 7);
+    gtk_widget_set_margin_bottom(slides_buttons_box, 7);
+
+    gtk_center_box_set_start_widget(GTK_CENTER_BOX(slides_buttons_box), button_prev);
+    gtk_center_box_set_center_widget(GTK_CENTER_BOX(slides_buttons_box), state_label);
+    gtk_center_box_set_end_widget(GTK_CENTER_BOX(slides_buttons_box), button_next);
+
+    // Set default focus
+    gtk_widget_set_focus_child(slides_buttons_box, button_next);
+
     // Date time label creation & update
     datetime_label = gtk_label_new("");
     g_timeout_add_seconds(1, sync_datetime_label, NULL);
 
-    gtk_center_box_set_start_widget(GTK_CENTER_BOX(center_buttons_box), button_prev);
-    gtk_center_box_set_center_widget(GTK_CENTER_BOX(center_buttons_box), state_label);
-    gtk_center_box_set_end_widget(GTK_CENTER_BOX(center_buttons_box), button_next);
+    GtkWidget *infos_center_box = gtk_center_box_new();
+    gtk_widget_set_margin_start(infos_center_box, 10);
+    gtk_widget_set_margin_end(infos_center_box, 10);
+    gtk_widget_set_margin_top(infos_center_box, 7);
+    gtk_widget_set_margin_bottom(infos_center_box, 7);
+
+    pdf_path_label = gtk_label_new("");
+    gtk_widget_set_margin_start(pdf_path_label, 8);
+    gtk_widget_set_margin_end(pdf_path_label, 8);
+
+    GtkWidget *time_label = gtk_label_new("Timer : 00:00:00");
+
+    gtk_center_box_set_start_widget(GTK_CENTER_BOX(infos_center_box), datetime_label);
+    gtk_center_box_set_center_widget(GTK_CENTER_BOX(infos_center_box), pdf_path_label);
+    gtk_center_box_set_end_widget(GTK_CENTER_BOX(infos_center_box), time_label);
 
     // Create PDF level bar
     PDF_level_bar = gtk_level_bar_new();
 
     gtk_widget_set_hexpand(current_page_drawing_area, TRUE); // Set expansion properties for the drawing area
     gtk_widget_set_vexpand(current_page_drawing_area, TRUE);
-    gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(current_page_drawing_area), 450); // Setting the width of the current drawing area
     gtk_widget_set_hexpand(next_page_drawing_area, TRUE);
     gtk_widget_set_vexpand(next_page_drawing_area, TRUE);
 
+    // The following is awkward
+    gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(next_page_drawing_area), 300); // Setting the width of the next drawing area
+
     gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 2, 1);
-    gtk_grid_attach(GTK_GRID(grid), datetime_label, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), infos_center_box, 0, 1, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 2, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), next_page_drawing_area, 1, 1, 1, 3);
-    gtk_grid_attach(GTK_GRID(grid), center_buttons_box, 0, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), slides_buttons_box, 0, 3, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), PDF_level_bar, 0, 4, 2, 1);
 
     // gtk_level_bar_add_offset_value(GTK_LEVEL_BAR(PDF_level_bar), GTK_LEVEL_BAR_OFFSET_LOW, 0.10);

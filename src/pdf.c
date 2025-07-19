@@ -55,6 +55,9 @@ void load_PDF_file(const char* path) {
 
     // Update slides label
     update_slides_label();
+
+    // Update PDF path label
+    gtk_label_set_label(GTK_LABEL(pdf_path_label), pdf_data.absolute_PDF_path);
 }
 
 void next_PDF_page(void) {
