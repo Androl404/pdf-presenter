@@ -167,6 +167,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *menu_bar = create_menu_bar(GTK_WINDOW(window));
     GtkWidget *grid = gtk_grid_new();
 
+    // Create previous button and callback
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
     g_signal_connect(button_prev, "clicked", G_CALLBACK(previous_PDF_page), window);
 
@@ -174,15 +175,18 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     state_label = gtk_label_new("");
     update_slides_label(); // To set basic label
 
+    // Create next button and callback
     GtkWidget *button_next = gtk_button_new_with_label("Next");
     g_signal_connect(button_next, "clicked", G_CALLBACK(next_PDF_page), window);
 
+    // Create slides center box
     GtkWidget *slides_buttons_box = gtk_center_box_new();
     gtk_widget_set_margin_start(slides_buttons_box, 15);
     gtk_widget_set_margin_end(slides_buttons_box, 15);
     gtk_widget_set_margin_top(slides_buttons_box, 7);
     gtk_widget_set_margin_bottom(slides_buttons_box, 7);
 
+    // Set widgets for slides center box
     gtk_center_box_set_start_widget(GTK_CENTER_BOX(slides_buttons_box), button_prev);
     gtk_center_box_set_center_widget(GTK_CENTER_BOX(slides_buttons_box), state_label);
     gtk_center_box_set_end_widget(GTK_CENTER_BOX(slides_buttons_box), button_next);
@@ -192,20 +196,25 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Date time label creation & update
     datetime_label = gtk_label_new("");
+    sync_datetime_label(window);
     g_timeout_add_seconds(1, sync_datetime_label, NULL);
 
+    // Create infos center box and set margins
     GtkWidget *infos_center_box = gtk_center_box_new();
     gtk_widget_set_margin_start(infos_center_box, 10);
     gtk_widget_set_margin_end(infos_center_box, 10);
     gtk_widget_set_margin_top(infos_center_box, 7);
     gtk_widget_set_margin_bottom(infos_center_box, 7);
 
+    // Initialize PDF path label
     pdf_path_label = gtk_label_new("");
     gtk_widget_set_margin_start(pdf_path_label, 8);
     gtk_widget_set_margin_end(pdf_path_label, 8);
 
+    // Create label for timer
     GtkWidget *time_label = gtk_label_new("Timer : 00:00:00");
 
+    // Set widget in info center box
     gtk_center_box_set_start_widget(GTK_CENTER_BOX(infos_center_box), datetime_label);
     gtk_center_box_set_center_widget(GTK_CENTER_BOX(infos_center_box), pdf_path_label);
     gtk_center_box_set_end_widget(GTK_CENTER_BOX(infos_center_box), time_label);
@@ -213,6 +222,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // Create PDF level bar
     PDF_level_bar = gtk_level_bar_new();
 
+    // Allow drawing areas to expand, or they will be not visible
     gtk_widget_set_hexpand(current_page_drawing_area, TRUE); // Set expansion properties for the drawing area
     gtk_widget_set_vexpand(current_page_drawing_area, TRUE);
     gtk_widget_set_hexpand(next_page_drawing_area, TRUE);
@@ -221,6 +231,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // The following is awkward
     gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(next_page_drawing_area), 300); // Setting the width of the next drawing area
 
+    // Attach widgets to gridsync_datetime_label
     gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 2, 1);
     gtk_grid_attach(GTK_GRID(grid), infos_center_box, 0, 1, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 2, 1, 1);
