@@ -34,7 +34,11 @@ void load_PDF_file(const char* path) {
 
     // Verify path of PDF
     if (!uri) {
-        g_print("Failed to convert filename to URI: %s\n", error->message);
+        if (error) {
+            g_print("Failed to convert filename to URI: %s\n", error->message);
+        } else {
+            g_print("Failed to convert filename to URI: the file was probably not found\n");
+        }
         g_error_free(error);
         return;
     }
