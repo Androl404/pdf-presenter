@@ -76,7 +76,7 @@ static void quit_action(GSimpleAction *action, GVariant *parameter, gpointer use
 
 static void about_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
-    const char* authors[] = {"Andrei ZEUCIANU"};
+    const char* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>"};
 
     GtkWidget *dialog = gtk_about_dialog_new();
     gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "PDF Presenter");
@@ -90,7 +90,8 @@ static void about_action(GSimpleAction *action, GVariant *parameter, gpointer us
     // gtk_about_dialog_set_wrap_license(GTK_ABOUT_DIALOG(dialog), TRUE);
 
     gtk_window_set_transient_for(GTK_WINDOW(dialog), window);
-    gtk_widget_set_visible(dialog, TRUE);
+    gtk_window_present(GTK_WINDOW(dialog));
+    // gtk_widget_set_visible(dialog, TRUE);
 
     // g_signal_connect(dialog, "response", G_CALLBACK(gtk_window_destroy), NULL);
 }
@@ -170,41 +171,50 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *grid = gtk_grid_new();
 
     // Create separators
-    GtkWidget* infos_separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+    // GtkWidget* infos_separator = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
     GtkWidget *vertical_separator = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
 
     // Create current slide label
-    GtkWidget* current_slide_label = gtk_label_new("Current slide");
-    gtk_widget_set_halign(current_slide_label, GTK_ALIGN_START);
-    gtk_widget_set_margin_start(current_slide_label, 6);
-    gtk_widget_set_margin_bottom(current_slide_label, 3);
+    // GtkWidget* current_slide_label = gtk_label_new("Current slide");
+    // gtk_widget_set_halign(current_slide_label, GTK_ALIGN_START);
+    // gtk_widget_set_margin_start(current_slide_label, 6);
+    // gtk_widget_set_margin_bottom(current_slide_label, 3);
 
-    // Create newt slide label
+    // Create next slide label
     GtkWidget *next_slide_label = gtk_label_new("Next slide");
     gtk_widget_set_halign(next_slide_label, GTK_ALIGN_START);
     gtk_widget_set_margin_start(next_slide_label, 6);
-    gtk_widget_set_margin_bottom(current_slide_label, 3);
+    // gtk_widget_set_margin_bottom(next_slide_label, 3);
+
+    // Create notes label
+    GtkWidget *notes_slide_label = gtk_label_new("Notes");
+    gtk_widget_set_halign( notes_slide_label, GTK_ALIGN_START);
+    gtk_widget_set_margin_start(notes_slide_label, 6);
 
     // Set current slide font
+    // PangoAttrList *attrlist = pango_attr_list_new();
+    // PangoFontDescription *font_desc = pango_font_description_new();
+    // pango_font_description_set_size(font_desc, 30 * PANGO_SCALE);
+    // pango_font_description_set_weight(font_desc, PANGO_WEIGHT_BOLD);
+    // PangoAttribute *attr = pango_attr_font_desc_new(font_desc);
+    // pango_attr_list_insert(attrlist, attr);
+    // gtk_label_set_attributes(GTK_LABEL(current_slide_label), attrlist);
+
+    // Set next slide font
     PangoAttrList *attrlist = pango_attr_list_new();
-    PangoFontDescription * font_desc = pango_font_description_new();
-    pango_font_description_set_size(font_desc, 30 * PANGO_SCALE);
+    PangoFontDescription *font_desc = pango_font_description_new();
+    pango_font_description_set_size(font_desc, 15 * PANGO_SCALE);
     pango_font_description_set_weight(font_desc, PANGO_WEIGHT_BOLD);
     PangoAttribute *attr = pango_attr_font_desc_new(font_desc);
     pango_attr_list_insert(attrlist, attr);
-    gtk_label_set_attributes(GTK_LABEL(current_slide_label), attrlist);
-
-    // Set next slide font
-    attrlist = pango_attr_list_new();
-    font_desc = pango_font_description_new();
-    pango_font_description_set_size(font_desc, 20 * PANGO_SCALE);
-    pango_font_description_set_weight(font_desc, PANGO_WEIGHT_BOLD);
-    attr = pango_attr_font_desc_new(font_desc);
-    pango_attr_list_insert(attrlist, attr);
     gtk_label_set_attributes(GTK_LABEL(next_slide_label), attrlist);
+    gtk_label_set_attributes(GTK_LABEL(notes_slide_label), attrlist);
 
     // Create notes text view
     GtkWidget *notes_text_view = gtk_text_view_new();
+    GtkWidget *notes_scrolled_window = gtk_scrolled_window_new();
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(notes_scrolled_window), notes_text_view);
+    // gtk_widget_set_hexpand(notes_scrolled_window, true);
 
     // Create previous button and callback
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
@@ -265,23 +275,25 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_hexpand(current_page_drawing_area, TRUE); // Set expansion properties for the drawing area
     gtk_widget_set_vexpand(current_page_drawing_area, TRUE);
     gtk_widget_set_hexpand(next_page_drawing_area, TRUE);
-    gtk_widget_set_vexpand(next_page_drawing_area, TRUE);
+    // gtk_widget_set_vexpand(next_page_drawing_area, TRUE); // Commented to avoid eating the notes space
 
     // The following is awkward
     gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(next_page_drawing_area), 300); // Setting the width of the next drawing area
 
     // Attach widgets to grid
-    gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 2, 1);
+    gtk_grid_attach(GTK_GRID(grid), menu_bar, 0, 0, 3, 1);
     gtk_grid_attach(GTK_GRID(grid), infos_center_box, 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), infos_separator, 0, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), current_slide_label, 0, 3, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 4, 1, 1);
+    // gtk_grid_attach(GTK_GRID(grid), infos_separator, 0, 2, 1, 1);
+    // gtk_grid_attach(GTK_GRID(grid), current_slide_label, 0, 3, 1, 2);
+    gtk_grid_attach(GTK_GRID(grid), current_page_drawing_area, 0, 2, 1, 2);
     gtk_grid_attach(GTK_GRID(grid), vertical_separator, 1, 1, 1, 3);
+
     gtk_grid_attach(GTK_GRID(grid), next_slide_label, 2, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), next_page_drawing_area, 2, 2, 1, 4);
-    gtk_grid_attach(GTK_GRID(grid), notes_text_view, 2, 5, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), slides_buttons_box, 0, 5, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), PDF_level_bar, 0, 6, 2, 1);
+    gtk_grid_attach(GTK_GRID(grid), next_page_drawing_area, 2, 2, 1, 1);
+    // gtk_grid_attach(GTK_GRID(grid), notes_slide_label, 2, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), notes_scrolled_window, 2, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), slides_buttons_box, 0, 4, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), PDF_level_bar, 0, 5, 3, 1);
 
     // gtk_level_bar_add_offset_value(GTK_LEVEL_BAR(PDF_level_bar), GTK_LEVEL_BAR_OFFSET_LOW, 0.10);
     gtk_window_set_child(GTK_WINDOW(window), grid);
