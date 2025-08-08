@@ -74,6 +74,14 @@ static void quit_action(GSimpleAction *action, GVariant *parameter, gpointer use
     gtk_window_close(window);
 }
 
+static void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    g_print("Started presentation at first slide\n");
+}
+
+static void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    g_print("Started presentation at current slide\n");
+}
+
 static void about_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     const char* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>"};
@@ -109,6 +117,14 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     g_signal_connect(quit_act, "activate", G_CALLBACK(quit_action), window);
     g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(quit_act));
 
+    GSimpleAction *present_first_act = g_simple_action_new("present_first", NULL);
+    g_signal_connect(present_first_act, "activate", G_CALLBACK(present_first_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(present_first_act));
+
+    GSimpleAction *present_current_act = g_simple_action_new("present_current", NULL);
+    g_signal_connect(present_current_act, "activate", G_CALLBACK(present_current_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(present_current_act));
+
     GSimpleAction *about_act = g_simple_action_new("about", NULL);
     g_signal_connect(about_act, "activate", G_CALLBACK(about_action), window);
     g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(about_act));
@@ -124,12 +140,18 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     g_menu_append(file_menu, "_Open", "win.open");
     g_menu_append(file_menu, "_Quit", "win.quit");
 
+    // Present menu
+    GMenu *present_menu = g_menu_new();
+    g_menu_append(present_menu, "_Start presentation at first slide", "win.present_first");
+    g_menu_append(present_menu, "_Start presentation at current slide", "win.present_current");
+
     // Help menu
     GMenu *help_menu = g_menu_new();
     g_menu_append(help_menu, "_About", "win.about");
 
     // Add submenus to main menu
     g_menu_append_submenu(menu_model, "_File", G_MENU_MODEL(file_menu));
+    g_menu_append_submenu(menu_model, "_Present", G_MENU_MODEL(present_menu));
     g_menu_append_submenu(menu_model, "_Help", G_MENU_MODEL(help_menu));
 
     // Create popover menu bar
