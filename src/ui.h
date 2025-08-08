@@ -19,3 +19,4 @@ void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer u
 void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 gboolean finish_presentation_action(GtkWindow *self, gpointer user_data);
 gboolean sync_datetime_label(gpointer user_data);
+void update_level_bar(void);

@@ -78,7 +78,9 @@ void next_PDF_page(void) {
     // Actually update PDF pages
     pdf_data.current_page++;
     queue_all_drawing_areas(); // Redraw all drawing areas
-    gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.current_page + 1);
+
+    // Update PDF level bar
+    update_level_bar();
 
     // Update slides label
     update_slides_label();
@@ -94,7 +96,9 @@ void previous_PDF_page(void) {
     // Actually update PDF pages
     pdf_data.current_page--;
     queue_all_drawing_areas(); // Redraw all drawing areas
-    gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.current_page + 1);
+
+    // Update PDF level bar
+    update_level_bar();
 
     // Update slides label
     update_slides_label();

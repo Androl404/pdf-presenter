@@ -79,18 +79,8 @@ static void quit_action(GSimpleAction *action, GVariant *parameter, gpointer use
     gtk_window_close(window);
 }
 
-void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-    // Go to first page if already in presentation
-    if (data_presentation.in_presentation) {
-        pdf_data.current_page = 0;
-        queue_all_drawing_areas();
-        return;
-    }
-
-    // Start at PDF first page
-    pdf_data.current_page = 0;
-
-    // Set presentation mode to true
+static void create_presentation_window(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+        // Set presentation mode to true
     data_presentation.in_presentation = true;
 
     GtkWidget *window = gtk_application_window_new(app);
@@ -105,7 +95,9 @@ void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer u
 
     gtk_window_set_child(GTK_WINDOW(window), presentation_drawing_area);
 
+    // TODO: Check if we were at the first page to avoid one iteration of redrawing
     queue_all_drawing_areas(); // Redraw everything in case we go to the first page
+    update_level_bar();
 
     // Add key controller also on that window, so we can use the keybindings while focusing on the presentation window.
     GtkEventController* key_controller = gtk_event_controller_key_new();
@@ -120,10 +112,26 @@ void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer u
     data_presentation.window_presentation_id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(window));
 }
 
+void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    // Go to first page if already in presentation
+    if (data_presentation.in_presentation) {
+        pdf_data.current_page = 0;
+        queue_all_drawing_areas();
+        update_level_bar();
+        return;
+    }
+
+    // Start at PDF first page
+    pdf_data.current_page = 0;
+
+    create_presentation_window(action, parameter, user_data);
+}
+
 void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
     if (data_presentation.in_presentation)
         return;
-    g_print("Started presentation at current slide\n");
+
+    create_presentation_window(action, parameter, user_data);
 }
 
 gboolean finish_presentation_action(GtkWindow *self, gpointer user_data) {
@@ -226,6 +234,10 @@ void update_slides_label() {
     } else {
         gtk_label_set_label(GTK_LABEL(state_label), "Slides counter");
     }
+}
+
+void update_level_bar() {
+    gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.current_page + 1);
 }
 
 gboolean sync_datetime_label(gpointer user_data) {
