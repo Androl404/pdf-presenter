@@ -120,18 +120,37 @@ void draw_current_page(GtkDrawingArea *area, cairo_t *cr, int width, int height,
     double scale_y = height / page_height;
     double scale = scale_x < scale_y ? scale_x : scale_y;
 
-    // Clear background
-    cairo_set_source_rgb(cr, 1, 1, 1); // To set the background color
+    // Calculate the scaled page dimensions
+    double scaled_width = page_width * scale;
+    double scaled_height = page_height * scale;
+
+    // Calculate centering offsets
+    double offset_x = (width - scaled_width) / 2;
+    double offset_y = (height - scaled_height) / 2;
+
+    // Clear entire background with black
+    cairo_set_source_rgb(cr, 0.18, 0.18, 0.18); // Black background
     cairo_paint(cr);
 
-    // Center the page
-    cairo_translate(cr, (width - page_width * scale) / 2, (height - page_height * scale) / 2);
+    // Draw white rectangle for the PDF area
+    cairo_set_source_rgb(cr, 1, 1, 1); // White for PDF background
+    cairo_rectangle(cr, offset_x, offset_y, scaled_width, scaled_height);
+    cairo_fill(cr);
+
+    // Save the current state
+    cairo_save(cr);
+
+    // Translate to center the page
+    cairo_translate(cr, offset_x, offset_y);
 
     // Apply scaling
     cairo_scale(cr, scale, scale);
 
-    // Render the page
+    // Render the PDF page
     poppler_page_render(page, cr);
+
+    // Restore the previous state
+    cairo_restore(cr);
 
     g_object_unref(page);
 
@@ -156,9 +175,25 @@ void draw_next_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gp
     double scale_y = height / page_height;
     double scale = scale_x < scale_y ? scale_x : scale_y;
 
-    // Clear background
-    cairo_set_source_rgb(cr, 1, 1, 1); // To set the background color
+    // Calculate the scaled page dimensions
+    double scaled_width = page_width * scale;
+    double scaled_height = page_height * scale;
+
+    // Calculate centering offsets
+    double offset_x = (width - scaled_width) / 2;
+    double offset_y = (height - scaled_height) / 2;
+
+    // Clear entire background with black
+    cairo_set_source_rgb(cr, 0.18, 0.18, 0.18); // Black background
     cairo_paint(cr);
+
+    // Draw white rectangle for the PDF area
+    cairo_set_source_rgb(cr, 1, 1, 1); // White for PDF background
+    cairo_rectangle(cr, offset_x, offset_y, scaled_width, scaled_height);
+    cairo_fill(cr);
+
+    // Save the current state
+    cairo_save(cr);
 
     // Center the page
     cairo_translate(cr, (width - page_width * scale) / 2, (height - page_height * scale) / 2);
