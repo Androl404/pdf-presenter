@@ -110,6 +110,9 @@ static void create_presentation_window(GSimpleAction *action, GVariant *paramete
     gtk_window_present(GTK_WINDOW(window));
 
     data_presentation.window_presentation_id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(window));
+
+    // TODO: Put window in fullscreen (experimental)
+    // gtk_window_fullscreen(GTK_WINDOW(window));
 }
 
 void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
