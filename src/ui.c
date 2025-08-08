@@ -13,7 +13,10 @@ GtkWidget *PDF_level_bar;
 GtkWidget *state_label;
 GtkWidget *datetime_label;
 GtkWidget *pdf_path_label;
-gboolean in_presentation = false;
+presentation_data data_presentation = {
+    .in_presentation = false,
+    .window_presentation_id = 0
+};
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -76,12 +79,19 @@ static void quit_action(GSimpleAction *action, GVariant *parameter, gpointer use
     gtk_window_close(window);
 }
 
-static void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    // Go to first page if already in presentation
+    if (data_presentation.in_presentation) {
+        pdf_data.current_page = 0;
+        queue_all_drawing_areas();
+        return;
+    }
+
     // Start at PDF first page
     pdf_data.current_page = 0;
 
     // Set presentation mode to true
-    in_presentation = true;
+    data_presentation.in_presentation = true;
 
     GtkWidget *window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "Presentation Window (should be in full screen)");
@@ -94,16 +104,40 @@ static void present_first_action(GSimpleAction *action, GVariant *parameter, gpo
     gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(presentation_drawing_area), draw_current_page, NULL, NULL);
 
     gtk_window_set_child(GTK_WINDOW(window), presentation_drawing_area);
-    // g_print("Started presentation at first slide\n");
 
-    queue_all_drawing_areas();
+    queue_all_drawing_areas(); // Redraw everything in case we go to the first page
+
+    // Add key controller also on that window, so we can use the keybindings while focusing on the presentation window.
+    GtkEventController* key_controller = gtk_event_controller_key_new();
+    g_signal_connect(key_controller, "key-pressed", G_CALLBACK(on_key_pressed), NULL);
+    gtk_widget_add_controller(window, key_controller);
+
+    g_signal_connect(window, "close-request", G_CALLBACK(finish_presentation_action), user_data);
 
     // Show window
     gtk_window_present(GTK_WINDOW(window));
+
+    data_presentation.window_presentation_id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(window));
 }
 
-static void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    if (data_presentation.in_presentation)
+        return;
     g_print("Started presentation at current slide\n");
+}
+
+gboolean finish_presentation_action(GtkWindow *self, gpointer user_data) {
+    data_presentation.in_presentation = false;
+    gtk_window_destroy(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id));
+    return true;
+}
+
+static gboolean close_all_windows(GtkWindow *self, gpointer user_data) {
+    if (data_presentation.in_presentation) {
+        data_presentation.in_presentation = false;
+        gtk_window_destroy(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id));
+    }
+    exit(0);
 }
 
 static void about_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
@@ -359,6 +393,9 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Show window
     gtk_window_present(GTK_WINDOW(window));
+
+    // If we close the main window
+    g_signal_connect(window, "close-request", G_CALLBACK(close_all_windows), user_data);
 
     // Load PDF from command line arguments
     load_defered_pdf();

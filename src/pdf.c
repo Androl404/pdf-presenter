@@ -103,7 +103,7 @@ void previous_PDF_page(void) {
 void queue_all_drawing_areas() {
     gtk_widget_queue_draw(current_page_drawing_area);
     gtk_widget_queue_draw(next_page_drawing_area);
-    if (in_presentation)
+    if (data_presentation.in_presentation)
         gtk_widget_queue_draw(presentation_drawing_area);
 }
 
