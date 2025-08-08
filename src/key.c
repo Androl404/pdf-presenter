@@ -23,8 +23,10 @@ gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint k
         return TRUE;
     case GDK_KEY_b:
     case GDK_KEY_B:
-    case GDK_KEY_k:
-    case GDK_KEY_K:
+    case GDK_KEY_j:
+    case GDK_KEY_J:
+    case GDK_KEY_h:
+    case GDK_KEY_H:
     case GDK_KEY_p:
     case GDK_KEY_P:
     case GDK_KEY_Down:
@@ -36,8 +38,10 @@ gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint k
 
     case GDK_KEY_f:
     case GDK_KEY_F:
-    case GDK_KEY_j:
-    case GDK_KEY_J:
+    case GDK_KEY_k:
+    case GDK_KEY_K:
+    case GDK_KEY_l:
+    case GDK_KEY_L:
     case GDK_KEY_n:
     case GDK_KEY_N:
     case GDK_KEY_Up:
