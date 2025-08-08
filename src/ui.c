@@ -1,16 +1,19 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
 
+#include "main.h"
 #include "ui.h"
 #include "pdf.h"
 #include "key.h"
 
 GtkWidget *current_page_drawing_area;
 GtkWidget *next_page_drawing_area;
+GtkWidget *presentation_drawing_area;
 GtkWidget *PDF_level_bar;
 GtkWidget *state_label;
 GtkWidget *datetime_label;
 GtkWidget *pdf_path_label;
+gboolean in_presentation = false;
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -26,8 +29,7 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, gpoint
 
         // Call your load_pdf function here
         load_PDF_file(filename);
-        gtk_widget_queue_draw(current_page_drawing_area);
-        gtk_widget_queue_draw(next_page_drawing_area);
+        queue_all_drawing_areas();
 
         g_free(filename);
         g_object_unref(file);
@@ -75,7 +77,29 @@ static void quit_action(GSimpleAction *action, GVariant *parameter, gpointer use
 }
 
 static void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-    g_print("Started presentation at first slide\n");
+    // Start at PDF first page
+    pdf_data.current_page = 0;
+
+    // Set presentation mode to true
+    in_presentation = true;
+
+    GtkWidget *window = gtk_application_window_new(app);
+    gtk_window_set_title(GTK_WINDOW(window), "Presentation Window (should be in full screen)");
+    gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
+
+    presentation_drawing_area = gtk_drawing_area_new();
+    gtk_widget_set_hexpand(presentation_drawing_area, TRUE); // Set expansion properties for the drawing area
+    gtk_widget_set_vexpand(presentation_drawing_area, TRUE);
+
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(presentation_drawing_area), draw_current_page, NULL, NULL);
+
+    gtk_window_set_child(GTK_WINDOW(window), presentation_drawing_area);
+    // g_print("Started presentation at first slide\n");
+
+    queue_all_drawing_areas();
+
+    // Show window
+    gtk_window_present(GTK_WINDOW(window));
 }
 
 static void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {

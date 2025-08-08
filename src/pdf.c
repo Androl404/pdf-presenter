@@ -77,8 +77,7 @@ void next_PDF_page(void) {
 
     // Actually update PDF pages
     pdf_data.current_page++;
-    gtk_widget_queue_draw(current_page_drawing_area);
-    gtk_widget_queue_draw(next_page_drawing_area);
+    queue_all_drawing_areas(); // Redraw all drawing areas
     gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.current_page + 1);
 
     // Update slides label
@@ -94,12 +93,18 @@ void previous_PDF_page(void) {
 
     // Actually update PDF pages
     pdf_data.current_page--;
-    gtk_widget_queue_draw(current_page_drawing_area);
-    gtk_widget_queue_draw(next_page_drawing_area);
+    queue_all_drawing_areas(); // Redraw all drawing areas
     gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.current_page + 1);
 
     // Update slides label
     update_slides_label();
+}
+
+void queue_all_drawing_areas() {
+    gtk_widget_queue_draw(current_page_drawing_area);
+    gtk_widget_queue_draw(next_page_drawing_area);
+    if (in_presentation)
+        gtk_widget_queue_draw(presentation_drawing_area);
 }
 
 // This function is called each time the drawing area gets resized
@@ -203,6 +208,9 @@ void draw_next_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gp
 
     // Render the page
     poppler_page_render(page, cr);
+
+    // Restore the previous state
+    cairo_restore(cr);
 
     g_object_unref(page);
 }
