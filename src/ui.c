@@ -146,15 +146,11 @@ gboolean finish_presentation_action(GtkWindow *self, gpointer user_data) {
 }
 
 static void end_presentation_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-    if (data_presentation.in_presentation)
-        finish_presentation_action(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id), user_data);
+    finish_presentation_action(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id), user_data);
 }
 
 static gboolean close_all_windows(GtkWindow *self, gpointer user_data) {
-    if (data_presentation.in_presentation) {
-        data_presentation.in_presentation = false;
-        gtk_window_destroy(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id));
-    }
+    finish_presentation_action(self, user_data);
     exit(0);
 }
 

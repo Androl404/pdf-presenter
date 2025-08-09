@@ -62,8 +62,7 @@ gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint k
     case GDK_KEY_q:
     case GDK_KEY_Q:
         if (data_presentation.in_presentation) {
-            data_presentation.in_presentation = false;
-            gtk_window_destroy(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id));
+            finish_presentation_action(GTK_WINDOW(user_data), user_data);
         }
         else
             exit(0);
