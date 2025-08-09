@@ -85,6 +85,7 @@ static void create_presentation_window(GSimpleAction *action, GVariant *paramete
     // Set presentation mode to true
     data_presentation.in_presentation = true;
 
+    // TODO: Allow multiple presentation windows on multiple external monitor
     GtkWidget *window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "Presentation Window (should be in full screen)");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
@@ -113,8 +114,15 @@ static void create_presentation_window(GSimpleAction *action, GVariant *paramete
 
     data_presentation.window_presentation_id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(window));
 
-    // TODO: Put window in fullscreen (experimental)
-    // gtk_window_fullscreen(GTK_WINDOW(window));
+    // TODO: Let the user choose of each screen to display the presentation window
+    GdkDisplay* default_display = gdk_display_get_default(); // Get display, more at a higher level, like the window manager
+    GListModel *monitors_list = gdk_display_get_monitors(default_display); // Get a list of all of the actuals monitor contained by that display
+    guint monitor_number = g_list_model_get_n_items(monitors_list); // Get the number of monitors
+    if (monitor_number == 1) {
+        gtk_window_fullscreen_on_monitor(GTK_WINDOW(window), GDK_MONITOR(g_list_model_get_object(monitors_list, 0)));
+    } else if (monitor_number > 1) {
+        gtk_window_fullscreen_on_monitor(GTK_WINDOW(window), GDK_MONITOR(g_list_model_get_object(monitors_list, 1)));
+    }
 }
 
 void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
@@ -284,6 +292,21 @@ gboolean sync_datetime_label(gpointer user_data) {
 }
 
 void on_activate(GtkApplication *app, gpointer user_data) {
+    // GdkDisplay* default_display = gdk_display_get_default();
+    // GListModel *monitors_list = gdk_display_get_monitors(default_display);
+    // guint monitor_number = g_list_model_get_n_items(monitors_list);
+    // g_print("Number of monitor(s): %d\n", monitor_number); // Number of monitors
+    // for (guint i = 0; i < monitor_number; i++) {
+    //     g_print("%s\n", gdk_monitor_get_connector(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%s\n", gdk_monitor_get_description(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%s\n", gdk_monitor_get_manufacturer(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%s\n", gdk_monitor_get_model(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%d\n", gdk_monitor_get_refresh_rate(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%f\n", gdk_monitor_get_scale(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%d\n", gdk_monitor_get_scale_factor(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     // g_list_model_get_object(monitors_list, i);
+    // }
+
     // Create a new window
     GtkWidget *window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "PDF Presenter");
