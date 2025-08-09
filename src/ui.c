@@ -12,11 +12,13 @@ GtkWidget *presentation_drawing_area;
 GtkWidget *PDF_level_bar;
 GtkWidget *state_label;
 GtkWidget *datetime_label;
+GtkWidget *chrono_label;
 GtkWidget *pdf_path_label;
 presentation_data data_presentation = {
     .in_presentation = false,
     .window_presentation_id = 0
 };
+GDateTime *presentation_start_time;
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -80,7 +82,7 @@ static void quit_action(GSimpleAction *action, GVariant *parameter, gpointer use
 }
 
 static void create_presentation_window(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
-        // Set presentation mode to true
+    // Set presentation mode to true
     data_presentation.in_presentation = true;
 
     GtkWidget *window = gtk_application_window_new(app);
@@ -116,6 +118,9 @@ static void create_presentation_window(GSimpleAction *action, GVariant *paramete
 }
 
 void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    // Reset chronometer anyways
+    presentation_start_time = g_date_time_new_now_local();
+
     // Go to first page if already in presentation
     if (data_presentation.in_presentation) {
         pdf_data.current_page = 0;
@@ -128,6 +133,7 @@ void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer u
     pdf_data.current_page = 0;
 
     create_presentation_window(action, parameter, user_data);
+
 }
 
 void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
@@ -135,7 +141,8 @@ void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer
         return;
 
     create_presentation_window(action, parameter, user_data);
-}
+    presentation_start_time = g_date_time_new_now_local();
+ }
 
 gboolean finish_presentation_action(GtkWindow *self, gpointer user_data) {
     if (data_presentation.in_presentation) {
@@ -253,9 +260,28 @@ void update_level_bar() {
 
 gboolean sync_datetime_label(gpointer user_data) {
     GDateTime *time = g_date_time_new_now_local();
-    char seconds[34];
-    sprintf(seconds, "Local time: %04d/%02d/%02d %02d:%02d:%02d", g_date_time_get_year(time), g_date_time_get_month(time), g_date_time_get_day_of_month(time), g_date_time_get_hour(time), g_date_time_get_minute(time), g_date_time_get_second(time));
-    gtk_label_set_label(GTK_LABEL(datetime_label), seconds);
+    char local_time_str[34], chronometer_str[22];
+    gint64 hours = 0, minutes = 0, seconds = 0;
+    sprintf(local_time_str, "Local time: %04d/%02d/%02d %02d:%02d:%02d", g_date_time_get_year(time), g_date_time_get_month(time), g_date_time_get_day_of_month(time), g_date_time_get_hour(time), g_date_time_get_minute(time), g_date_time_get_second(time));
+    gtk_label_set_label(GTK_LABEL(datetime_label), local_time_str);
+    if (data_presentation.in_presentation) {
+        GTimeSpan presentation_time_difference = g_date_time_difference(time, presentation_start_time);
+        presentation_time_difference /= 1000000; // From microseconds to seconds
+        g_print("%ld", presentation_time_difference);
+        if (presentation_time_difference > 59) {
+            minutes = presentation_time_difference / 60;
+            seconds = presentation_time_difference % 60;
+            if (minutes > 59) {
+                hours = minutes / 60;
+                minutes = minutes % 60;
+            }
+        } else {
+            seconds = presentation_time_difference;
+        }
+        sprintf(chronometer_str, "Chronometer: %02ld:%02ld:%02ld", hours, minutes, seconds);
+        g_print("%s\n", chronometer_str);
+        gtk_label_set_label(GTK_LABEL(chrono_label), chronometer_str);
+    }
     return TRUE;
 }
 
@@ -364,12 +390,12 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_end(pdf_path_label, 8);
 
     // Create label for timer
-    GtkWidget *time_label = gtk_label_new("Timer : 00:00:00");
+    chrono_label = gtk_label_new("Chronometer: 00:00:00");
 
     // Set widget in info center box
     gtk_center_box_set_start_widget(GTK_CENTER_BOX(infos_center_box), datetime_label);
     gtk_center_box_set_center_widget(GTK_CENTER_BOX(infos_center_box), pdf_path_label);
-    gtk_center_box_set_end_widget(GTK_CENTER_BOX(infos_center_box), time_label);
+    gtk_center_box_set_end_widget(GTK_CENTER_BOX(infos_center_box), chrono_label);
 
     // Create PDF level bar
     PDF_level_bar = gtk_level_bar_new();
