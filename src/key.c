@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
 
+#include "main.h"
 #include "pdf.h"
 #include "ui.h"
 #include "key.h"
@@ -9,6 +10,12 @@
 gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, gpointer user_data) {
     // Check for specific keys
     switch (keyval) {
+    case GDK_KEY_F5:
+        if (state & GDK_SHIFT_MASK)
+            present_current_action(NULL, NULL, user_data);
+        else
+            present_first_action(NULL, NULL, user_data);
+        return TRUE;
     case GDK_KEY_space:
         if (state & GDK_SHIFT_MASK)
             previous_PDF_page();
@@ -54,7 +61,11 @@ gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint k
 
     case GDK_KEY_q:
     case GDK_KEY_Q:
-        exit(0);
+        if (data_presentation.in_presentation) {
+            finish_presentation_action(GTK_WINDOW(user_data), user_data);
+        }
+        else
+            exit(0);
         return TRUE;
 
     case GDK_KEY_o:

@@ -15,3 +15,4 @@ void draw_next_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gp
 void load_PDF_file(const char* path);
 void next_PDF_page(void);
 void previous_PDF_page(void);
+void queue_all_drawing_areas();

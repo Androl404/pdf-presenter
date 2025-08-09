@@ -1,0 +1,1 @@
+extern GtkApplication* app;

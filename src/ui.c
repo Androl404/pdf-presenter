@@ -1,16 +1,24 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
 
+#include "main.h"
 #include "ui.h"
 #include "pdf.h"
 #include "key.h"
 
 GtkWidget *current_page_drawing_area;
 GtkWidget *next_page_drawing_area;
+GtkWidget *presentation_drawing_area;
 GtkWidget *PDF_level_bar;
 GtkWidget *state_label;
 GtkWidget *datetime_label;
+GtkWidget *chrono_label;
 GtkWidget *pdf_path_label;
+presentation_data data_presentation = {
+    .in_presentation = false,
+    .window_presentation_id = 0
+};
+GDateTime *presentation_start_time;
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -26,8 +34,7 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, gpoint
 
         // Call your load_pdf function here
         load_PDF_file(filename);
-        gtk_widget_queue_draw(current_page_drawing_area);
-        gtk_widget_queue_draw(next_page_drawing_area);
+        queue_all_drawing_areas();
 
         g_free(filename);
         g_object_unref(file);
@@ -74,6 +81,94 @@ static void quit_action(GSimpleAction *action, GVariant *parameter, gpointer use
     gtk_window_close(window);
 }
 
+static void create_presentation_window(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    // Set presentation mode to true
+    data_presentation.in_presentation = true;
+
+    // TODO: Allow multiple presentation windows on multiple external monitor
+    GtkWidget *window = gtk_application_window_new(app);
+    gtk_window_set_title(GTK_WINDOW(window), "Presentation Window (should be in full screen)");
+    gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
+
+    presentation_drawing_area = gtk_drawing_area_new();
+    gtk_widget_set_hexpand(presentation_drawing_area, TRUE); // Set expansion properties for the drawing area
+    gtk_widget_set_vexpand(presentation_drawing_area, TRUE);
+
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(presentation_drawing_area), draw_current_page, NULL, NULL);
+
+    gtk_window_set_child(GTK_WINDOW(window), presentation_drawing_area);
+
+    // TODO: Check if we were at the first page to avoid one iteration of redrawing
+    queue_all_drawing_areas(); // Redraw everything in case we go to the first page
+    update_level_bar();
+
+    // Add key controller also on that window, so we can use the keybindings while focusing on the presentation window.
+    GtkEventController* key_controller = gtk_event_controller_key_new();
+    g_signal_connect(key_controller, "key-pressed", G_CALLBACK(on_key_pressed), NULL);
+    gtk_widget_add_controller(window, key_controller);
+
+    g_signal_connect(window, "close-request", G_CALLBACK(finish_presentation_action), user_data);
+
+    // Show window
+    gtk_window_present(GTK_WINDOW(window));
+
+    data_presentation.window_presentation_id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(window));
+
+    // TODO: Let the user choose of each screen to display the presentation window
+    GdkDisplay* default_display = gdk_display_get_default(); // Get display, more at a higher level, like the window manager
+    GListModel *monitors_list = gdk_display_get_monitors(default_display); // Get a list of all of the actuals monitor contained by that display
+    guint monitor_number = g_list_model_get_n_items(monitors_list); // Get the number of monitors
+    if (monitor_number == 1) {
+        gtk_window_fullscreen_on_monitor(GTK_WINDOW(window), GDK_MONITOR(g_list_model_get_object(monitors_list, 0)));
+    } else if (monitor_number > 1) {
+        gtk_window_fullscreen_on_monitor(GTK_WINDOW(window), GDK_MONITOR(g_list_model_get_object(monitors_list, 1)));
+    }
+}
+
+void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    // Reset chronometer anyways
+    presentation_start_time = g_date_time_new_now_local();
+
+    // Go to first page if already in presentation
+    if (data_presentation.in_presentation) {
+        pdf_data.current_page = 0;
+        queue_all_drawing_areas();
+        update_level_bar();
+        return;
+    }
+
+    // Start at PDF first page
+    pdf_data.current_page = 0;
+
+    create_presentation_window(action, parameter, user_data);
+
+}
+
+void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    if (data_presentation.in_presentation)
+        return;
+
+    create_presentation_window(action, parameter, user_data);
+    presentation_start_time = g_date_time_new_now_local();
+ }
+
+gboolean finish_presentation_action(GtkWindow *self, gpointer user_data) {
+    if (data_presentation.in_presentation) {
+        data_presentation.in_presentation = false;
+        gtk_window_destroy(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id));
+    }
+    return true;
+}
+
+static void end_presentation_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+    finish_presentation_action(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id), user_data);
+}
+
+static gboolean close_all_windows(GtkWindow *self, gpointer user_data) {
+    finish_presentation_action(self, user_data);
+    exit(0);
+}
+
 static void about_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     const char* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>"};
@@ -109,6 +204,18 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     g_signal_connect(quit_act, "activate", G_CALLBACK(quit_action), window);
     g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(quit_act));
 
+    GSimpleAction *present_first_act = g_simple_action_new("present_first", NULL);
+    g_signal_connect(present_first_act, "activate", G_CALLBACK(present_first_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(present_first_act));
+
+    GSimpleAction *present_current_act = g_simple_action_new("present_current", NULL);
+    g_signal_connect(present_current_act, "activate", G_CALLBACK(present_current_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(present_current_act));
+
+    GSimpleAction *end_presentation_act = g_simple_action_new("end_presentation", NULL);
+    g_signal_connect(end_presentation_act, "activate", G_CALLBACK(end_presentation_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(end_presentation_act));
+
     GSimpleAction *about_act = g_simple_action_new("about", NULL);
     g_signal_connect(about_act, "activate", G_CALLBACK(about_action), window);
     g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(about_act));
@@ -124,12 +231,19 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     g_menu_append(file_menu, "_Open", "win.open");
     g_menu_append(file_menu, "_Quit", "win.quit");
 
+    // Present menu
+    GMenu *present_menu = g_menu_new();
+    g_menu_append(present_menu, "_Start presentation at first slide", "win.present_first");
+    g_menu_append(present_menu, "_Start presentation at current slide", "win.present_current");
+    g_menu_append(present_menu, "_End presentation", "win.end_presentation");
+
     // Help menu
     GMenu *help_menu = g_menu_new();
     g_menu_append(help_menu, "_About", "win.about");
 
     // Add submenus to main menu
     g_menu_append_submenu(menu_model, "_File", G_MENU_MODEL(file_menu));
+    g_menu_append_submenu(menu_model, "_Present", G_MENU_MODEL(present_menu));
     g_menu_append_submenu(menu_model, "_Help", G_MENU_MODEL(help_menu));
 
     // Create popover menu bar
@@ -148,15 +262,51 @@ void update_slides_label() {
     }
 }
 
+void update_level_bar() {
+    gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.current_page + 1);
+}
+
 gboolean sync_datetime_label(gpointer user_data) {
     GDateTime *time = g_date_time_new_now_local();
-    char seconds[34];
-    sprintf(seconds, "Local time: %04d/%02d/%02d %02d:%02d:%02d", g_date_time_get_year(time), g_date_time_get_month(time), g_date_time_get_day_of_month(time), g_date_time_get_hour(time), g_date_time_get_minute(time), g_date_time_get_second(time));
-    gtk_label_set_label(GTK_LABEL(datetime_label), seconds);
+    char local_time_str[34], chronometer_str[22];
+    gint64 hours = 0, minutes = 0, seconds = 0;
+    sprintf(local_time_str, "Local time: %04d/%02d/%02d %02d:%02d:%02d", g_date_time_get_year(time), g_date_time_get_month(time), g_date_time_get_day_of_month(time), g_date_time_get_hour(time), g_date_time_get_minute(time), g_date_time_get_second(time));
+    gtk_label_set_label(GTK_LABEL(datetime_label), local_time_str);
+    if (data_presentation.in_presentation) {
+        GTimeSpan presentation_time_difference = g_date_time_difference(time, presentation_start_time);
+        presentation_time_difference /= 1000000; // From microseconds to seconds
+        if (presentation_time_difference > 59) {
+            minutes = presentation_time_difference / 60;
+            seconds = presentation_time_difference % 60;
+            if (minutes > 59) {
+                hours = minutes / 60;
+                minutes = minutes % 60;
+            }
+        } else {
+            seconds = presentation_time_difference;
+        }
+        sprintf(chronometer_str, "Chronometer: %02ld:%02ld:%02ld", hours, minutes, seconds);
+        gtk_label_set_label(GTK_LABEL(chrono_label), chronometer_str);
+    }
     return TRUE;
 }
 
 void on_activate(GtkApplication *app, gpointer user_data) {
+    // GdkDisplay* default_display = gdk_display_get_default();
+    // GListModel *monitors_list = gdk_display_get_monitors(default_display);
+    // guint monitor_number = g_list_model_get_n_items(monitors_list);
+    // g_print("Number of monitor(s): %d\n", monitor_number); // Number of monitors
+    // for (guint i = 0; i < monitor_number; i++) {
+    //     g_print("%s\n", gdk_monitor_get_connector(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%s\n", gdk_monitor_get_description(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%s\n", gdk_monitor_get_manufacturer(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%s\n", gdk_monitor_get_model(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%d\n", gdk_monitor_get_refresh_rate(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%f\n", gdk_monitor_get_scale(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%d\n", gdk_monitor_get_scale_factor(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     // g_list_model_get_object(monitors_list, i);
+    // }
+
     // Create a new window
     GtkWidget *window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "PDF Presenter");
@@ -261,12 +411,12 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_end(pdf_path_label, 8);
 
     // Create label for timer
-    GtkWidget *time_label = gtk_label_new("Timer : 00:00:00");
+    chrono_label = gtk_label_new("Chronometer: 00:00:00");
 
     // Set widget in info center box
     gtk_center_box_set_start_widget(GTK_CENTER_BOX(infos_center_box), datetime_label);
     gtk_center_box_set_center_widget(GTK_CENTER_BOX(infos_center_box), pdf_path_label);
-    gtk_center_box_set_end_widget(GTK_CENTER_BOX(infos_center_box), time_label);
+    gtk_center_box_set_end_widget(GTK_CENTER_BOX(infos_center_box), chrono_label);
 
     // Create PDF level bar
     PDF_level_bar = gtk_level_bar_new();
@@ -313,6 +463,9 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Show window
     gtk_window_present(GTK_WINDOW(window));
+
+    // If we close the main window
+    g_signal_connect(window, "close-request", G_CALLBACK(close_all_windows), user_data);
 
     // Load PDF from command line arguments
     load_defered_pdf();
