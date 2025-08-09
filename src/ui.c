@@ -267,7 +267,6 @@ gboolean sync_datetime_label(gpointer user_data) {
     if (data_presentation.in_presentation) {
         GTimeSpan presentation_time_difference = g_date_time_difference(time, presentation_start_time);
         presentation_time_difference /= 1000000; // From microseconds to seconds
-        g_print("%ld", presentation_time_difference);
         if (presentation_time_difference > 59) {
             minutes = presentation_time_difference / 60;
             seconds = presentation_time_difference % 60;
@@ -279,7 +278,6 @@ gboolean sync_datetime_label(gpointer user_data) {
             seconds = presentation_time_difference;
         }
         sprintf(chronometer_str, "Chronometer: %02ld:%02ld:%02ld", hours, minutes, seconds);
-        g_print("%s\n", chronometer_str);
         gtk_label_set_label(GTK_LABEL(chrono_label), chronometer_str);
     }
     return TRUE;
