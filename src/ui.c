@@ -390,9 +390,6 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_center_box_set_center_widget(GTK_CENTER_BOX(slides_buttons_box), state_label);
     gtk_center_box_set_end_widget(GTK_CENTER_BOX(slides_buttons_box), button_next);
 
-    // Set default focus
-    gtk_widget_set_focus_child(slides_buttons_box, button_next);
-
     // Date time label creation & update
     datetime_label = gtk_label_new("");
     sync_datetime_label(window);
@@ -463,6 +460,9 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Show window
     gtk_window_present(GTK_WINDOW(window));
+
+    // Set default focus, avoiding the text view
+    gtk_window_set_focus(GTK_WINDOW(window), button_next);
 
     // If we close the main window
     g_signal_connect(window, "close-request", G_CALLBACK(close_all_windows), user_data);
