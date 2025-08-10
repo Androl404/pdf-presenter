@@ -100,8 +100,18 @@ void load_notes_file(const char *filepath) {
     }
 
     data_notes.notes_loaded = true;
+    get_note_file_extension();
     g_print("Loaded notes file at: %s\n", data_notes.notes_absolute_path->str);
     load_slide_notes(pdf_data.current_page);
+}
+
+void get_note_file_extension() {
+    if ((*(data_notes.notes_absolute_path->str + data_notes.notes_absolute_path->len - 1) == 'd') && (*(data_notes.notes_absolute_path->str + data_notes.notes_absolute_path->len - 2) == 'm') && (*(data_notes.notes_absolute_path->str + data_notes.notes_absolute_path->len - 3) == '.'))
+        data_notes.extension = MARKDOWN_FILE;
+    else if ((*(data_notes.notes_absolute_path->str + data_notes.notes_absolute_path->len - 1) == 't') && (*(data_notes.notes_absolute_path->str + data_notes.notes_absolute_path->len - 2) == 'x') && (*(data_notes.notes_absolute_path->str + data_notes.notes_absolute_path->len - 3) == 't') && (*(data_notes.notes_absolute_path->str + data_notes.notes_absolute_path->len - 4) == '.'))
+        data_notes.extension = TEXT_FILE;
+    else
+        data_notes.extension = UNKNOWN_FILE;
 }
 
 gboolean defer_notes_loading(int argc, char **argv) {
@@ -157,15 +167,31 @@ void load_slide_notes(const size_t slide) {
     GString* slide_notes = g_string_new(NULL);
     for (gsize j = 0; j < notes_file_string->len; j++) {
         // g_print("%c", *(notes_file_string->str + j));
-        if (j == 0)
-            new_section = (*(notes_file_string->str + j) == '#') && (*(notes_file_string->str + j + 1) == ' ');
-        else
-            new_section = (*(notes_file_string->str + j - 1) == '\n') && (*(notes_file_string->str + j) == '#') && (*(notes_file_string->str + j + 1) == ' ');
+        if (j == 0) {
+            if (data_notes.extension == MARKDOWN_FILE)
+                new_section = (*(notes_file_string->str + j) == '#') && (*(notes_file_string->str + j + 1) == ' ');
+            else {
+                section++;
+                // new_section = (*(notes_file_string->str + j) == '-') && (*(notes_file_string->str + j + 1) == '-') && (*(notes_file_string->str + j + 2) == '-');
+            }
+        } else {
+            if (data_notes.extension == MARKDOWN_FILE)
+                new_section = (*(notes_file_string->str + j - 1) == '\n') && (*(notes_file_string->str + j) == '#') && (*(notes_file_string->str + j + 1) == ' ');
+            else
+                new_section = (*(notes_file_string->str + j - 1) == '\n') && (*(notes_file_string->str + j) == '-') && (*(notes_file_string->str + j + 1) == '-') && (*(notes_file_string->str + j + 2) == '-') && (*(notes_file_string->str + j + 3) == '\n');
+        }
         if (new_section) {
             section++;
         }
         if (section - 1 == slide) {
-            g_string_append_c(slide_notes, *(notes_file_string->str + j));
+            if (data_notes.extension == MARKDOWN_FILE)
+                g_string_append_c(slide_notes, *(notes_file_string->str + j));
+            else {
+                if (new_section)
+                    j += 3;
+                else
+                    g_string_append_c(slide_notes, *(notes_file_string->str + j));
+            }
         }
     }
     gtk_text_buffer_set_text(notes_text_buffer, slide_notes->str, slide_notes->len);
