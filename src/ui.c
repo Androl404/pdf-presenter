@@ -184,7 +184,7 @@ static gboolean close_all_windows(GtkWindow *self, gpointer user_data) {
 
 static void about_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
-    const char* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>"};
+    const char* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>", NULL};
 
     GtkWidget *dialog = gtk_about_dialog_new();
     gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "PDF Presenter");
