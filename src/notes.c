@@ -1,5 +1,6 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
+#include <stdio.h>
 
 #include "main.h"
 #include "ui.h"
@@ -98,7 +99,9 @@ void load_notes_file(const char *filepath) {
         return;
     }
 
+    data_notes.notes_loaded = true;
     g_print("Loaded notes file at: %s\n", data_notes.notes_absolute_path->str);
+    load_slide_notes(pdf_data.current_page);
 }
 
 gboolean defer_notes_loading(int argc, char **argv) {
@@ -113,4 +116,62 @@ gboolean defer_notes_loading(int argc, char **argv) {
 void load_defered_notes(void) {
     if (notes_to_load != NULL)
         load_notes_file(notes_to_load);
+}
+
+void load_slide_notes(const size_t slide) {
+    if (!data_notes.notes_loaded)
+        return;
+
+    // TODO: use Gio API to open, read and write files
+    // GCancellable* cancellable = g_cancellable_new();
+    // GFile *file = g_file_new_for_path(data_notes.notes_absolute_path->str);
+    // GError *error;
+    // GFileInputStream *notes_input_stream = g_file_read(file, cancellable, &error);
+
+    // gboolean status = seek(notes_input_stream, 0, G_SEEK_SET, cancellable, &error);
+
+    FILE *notes_file;
+    notes_file = fopen(data_notes.notes_absolute_path->str, "r");
+    if (notes_file == NULL) {
+        g_print("Failed to open notes file.");
+        return;
+    }
+    GString *notes_file_string = g_string_new(NULL);
+
+    int c; // note: int, not char, required to handle EOF
+    while ((c = fgetc(notes_file)) != EOF) { // standard C I/O file reading loop
+        g_string_append_c(notes_file_string, c);
+    }
+
+    if (ferror(notes_file))
+        g_print("I/O error when reading");
+    else if (feof(notes_file)) {
+        // puts("End of file is reached successfully");
+    }
+    fclose(notes_file);
+
+    gtk_text_buffer_set_text(notes_text_buffer, " \0", -1);
+    // Actually find the slides notes
+    gssize section = 0;
+    gboolean new_section = false;
+    GString* slide_notes = g_string_new(NULL);
+    for (gsize j = 0; j < notes_file_string->len; j++) {
+        // g_print("%c", *(notes_file_string->str + j));
+        if (j == 0)
+            new_section = (*(notes_file_string->str + j) == '#') && (*(notes_file_string->str + j + 1) == ' ');
+        else
+            new_section = (*(notes_file_string->str + j - 1) == '\n') && (*(notes_file_string->str + j) == '#') && (*(notes_file_string->str + j + 1) == ' ');
+        if (new_section) {
+            section++;
+        }
+        if (section - 1 == slide) {
+            g_string_append_c(slide_notes, *(notes_file_string->str + j));
+        }
+    }
+    gtk_text_buffer_set_text(notes_text_buffer, slide_notes->str, slide_notes->len);
+
+    // Part of previous TODO
+    // g_object_unref(cancellable);
+    // g_object_unref(file);
+    // g_object_unref(notes_input_stream);
 }

@@ -8,6 +8,8 @@
 
 #include "pdf.h"
 #include "ui.h"
+#include "notes.h"
+
 
 char *pdf_to_load = NULL;
 
@@ -89,6 +91,10 @@ void next_PDF_page(void) {
 
     // Update slides label
     update_slides_label();
+
+    // Load notes if we loaded a file
+    if (data_notes.notes_loaded)
+        load_slide_notes(pdf_data.current_page);
 }
 
 void previous_PDF_page(void) {
@@ -107,6 +113,11 @@ void previous_PDF_page(void) {
 
     // Update slides label
     update_slides_label();
+
+    // Load notes if we loaded a file
+    if (data_notes.notes_loaded)
+        load_slide_notes(pdf_data.current_page);
+
 }
 
 void queue_all_drawing_areas() {

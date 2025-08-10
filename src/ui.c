@@ -20,6 +20,7 @@ presentation_data data_presentation = {
     .window_presentation_id = 0
 };
 GDateTime *presentation_start_time;
+GtkTextBuffer *notes_text_buffer;
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -365,6 +366,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Create notes text view
     GtkWidget *notes_text_view = gtk_text_view_new();
+    notes_text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(notes_text_view));
     GtkWidget *notes_scrolled_window = gtk_scrolled_window_new();
     gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(notes_scrolled_window), notes_text_view);
     // gtk_widget_set_hexpand(notes_scrolled_window, true);
