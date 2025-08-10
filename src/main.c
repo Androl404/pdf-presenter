@@ -4,6 +4,7 @@
 #include "main.h"
 #include "pdf.h"
 #include "ui.h"
+#include "notes.h"
 
 PopplerDocument *document = NULL;
 PDF_data pdf_data = {0};
@@ -12,6 +13,7 @@ GtkApplication* app;
 int main(int argc, char **argv) {
     // Defer PDF loading (in the case there is a PDF file from cmd arg)
     defer_pdf_loading(argc, argv);
+    defer_notes_loading(argc, argv);
 
     // Initialize GTK and run the application
     app = gtk_application_new("com.github.pdfviewer", G_APPLICATION_DEFAULT_FLAGS);

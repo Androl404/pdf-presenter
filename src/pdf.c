@@ -30,7 +30,11 @@ void load_defered_pdf(void) {
 void load_PDF_file(const char* path) {
     // Load PDF document
     GError *error = NULL;
-    char *uri = g_filename_to_uri(realpath(path, pdf_data.absolute_PDF_path), NULL, &error);
+    pdf_data.absolute_PDF_path = g_string_new(NULL);
+    char* absolute_PDF_path_temp = malloc((PATH_MAX + 1) * sizeof(char));
+    char *uri = g_filename_to_uri(realpath(path, absolute_PDF_path_temp), NULL, &error);
+    pdf_data.absolute_PDF_path = g_string_append(pdf_data.absolute_PDF_path, absolute_PDF_path_temp);
+    free(absolute_PDF_path_temp);
 
     // Verify path of PDF
     if (!uri) {
@@ -46,6 +50,7 @@ void load_PDF_file(const char* path) {
     document = poppler_document_new_from_file(uri, NULL, &error);
     pdf_data.total_pages = poppler_document_get_n_pages(document);
     pdf_data.current_page = 0;
+    pdf_data.pdf_loaded = true;
     g_free(uri);
 
     // Set level bar
@@ -65,12 +70,12 @@ void load_PDF_file(const char* path) {
     update_slides_label();
 
     // Update PDF path label
-    gtk_label_set_label(GTK_LABEL(pdf_path_label), pdf_data.absolute_PDF_path);
+    gtk_label_set_label(GTK_LABEL(pdf_path_label), pdf_data.absolute_PDF_path->str);
 }
 
 void next_PDF_page(void) {
     // Verify if a PDF file is opened and the PDF page exists
-    if (pdf_data.absolute_PDF_path[0] == 0 || !(pdf_data.current_page < pdf_data.total_pages - 1)) {
+    if (!pdf_data.pdf_loaded || !(pdf_data.current_page < pdf_data.total_pages - 1)) {
         gtk_widget_error_bell(current_page_drawing_area);
         return;
     }
@@ -88,7 +93,7 @@ void next_PDF_page(void) {
 
 void previous_PDF_page(void) {
     // Verify if a PDF file is opened and if the PDF page exists
-    if (pdf_data.absolute_PDF_path[0] == 0 || !(pdf_data.current_page > 0)) {
+    if (!pdf_data.pdf_loaded || !(pdf_data.current_page > 0)) {
         gtk_widget_error_bell(current_page_drawing_area);
         return;
     }

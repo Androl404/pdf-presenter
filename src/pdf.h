@@ -1,5 +1,6 @@
 typedef struct {
-    char absolute_PDF_path[PATH_MAX + 1];
+    GString *absolute_PDF_path;
+    gboolean pdf_loaded;
     size_t current_page;
     size_t total_pages;
 } PDF_data;

@@ -71,7 +71,7 @@ gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint k
     case GDK_KEY_o:
         if (state & GDK_CONTROL_MASK) {
             // gtk_widget_activate_action(GTK_WIDGET(user_data), "win.open", NULL);
-            open_action(NULL, NULL, user_data);
+            open_PDF_action(NULL, NULL, user_data);
         }
         return TRUE;
 

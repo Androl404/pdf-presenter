@@ -14,7 +14,7 @@ extern GtkWidget *pdf_path_label;
 extern presentation_data data_presentation;
 extern GDateTime *presentation_start_time;
 
-void open_action(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+void open_PDF_action(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 void on_activate(GtkApplication *app, gpointer user_data);
 void update_slides_label(void);
 void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data);

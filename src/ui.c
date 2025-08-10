@@ -5,6 +5,7 @@
 #include "ui.h"
 #include "pdf.h"
 #include "key.h"
+#include "notes.h"
 
 GtkWidget *current_page_drawing_area;
 GtkWidget *next_page_drawing_area;
@@ -47,7 +48,7 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, gpoint
 }
 
 // Add these action callback functions
-void open_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+void open_PDF_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     g_print("Open action triggered\n");
 
@@ -208,9 +209,13 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     GSimpleActionGroup *action_group = g_simple_action_group_new();
 
     // Create actions
-    GSimpleAction *open_act = g_simple_action_new("open", NULL);
-    g_signal_connect(open_act, "activate", G_CALLBACK(open_action), window);
-    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(open_act));
+    GSimpleAction *open_PDF_act = g_simple_action_new("openPDF", NULL);
+    g_signal_connect(open_PDF_act, "activate", G_CALLBACK(open_PDF_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(open_PDF_act));
+
+    GSimpleAction *open_notes_act = g_simple_action_new("opennotes", NULL);
+    g_signal_connect(open_notes_act, "activate", G_CALLBACK(open_notes_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(open_notes_act));
 
     GSimpleAction *quit_act = g_simple_action_new("quit", NULL);
     g_signal_connect(quit_act, "activate", G_CALLBACK(quit_action), window);
@@ -240,7 +245,8 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
 
     // File menu
     GMenu *file_menu = g_menu_new();
-    g_menu_append(file_menu, "_Open", "win.open");
+    g_menu_append(file_menu, "_Open PDF file...", "win.openPDF");
+    g_menu_append(file_menu, "_Open notes file...", "win.opennotes");
     g_menu_append(file_menu, "_Quit", "win.quit");
 
     // Present menu
@@ -267,7 +273,7 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
 void update_slides_label() {
     char label_string[(10 + (2*(pdf_data.total_pages / 10) + 1)) * sizeof(char)];
     sprintf(label_string, "Slide %zu of %zu", pdf_data.current_page + 1, pdf_data.total_pages);
-    if (pdf_data.absolute_PDF_path[0] != 0) {
+    if (pdf_data.pdf_loaded) {
         gtk_label_set_label(GTK_LABEL(state_label), label_string);
     } else {
         gtk_label_set_label(GTK_LABEL(state_label), "Slides counter");
@@ -466,4 +472,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Load PDF from command line arguments
     load_defered_pdf();
+
+    // Load notes from command line arguments
+    load_defered_notes();
 }
