@@ -15,12 +15,13 @@ GtkWidget *state_label;
 GtkWidget *datetime_label;
 GtkWidget *chrono_label;
 GtkWidget *pdf_path_label;
+GtkWidget *notes_label;
 presentation_data data_presentation = {
     .in_presentation = false,
     .window_presentation_id = 0
 };
 GDateTime *presentation_start_time;
-GtkTextBuffer *notes_text_buffer;
+// GtkTextBuffer *notes_text_buffer;
 
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
@@ -341,9 +342,9 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // gtk_widget_set_margin_bottom(next_slide_label, 3);
 
     // Create notes label
-    GtkWidget *notes_slide_label = gtk_label_new("Notes");
-    gtk_widget_set_halign( notes_slide_label, GTK_ALIGN_START);
-    gtk_widget_set_margin_start(notes_slide_label, 6);
+    // GtkWidget *notes_slide_label = gtk_label_new("Notes");
+    // gtk_widget_set_halign(notes_slide_label, GTK_ALIGN_START);
+    // gtk_widget_set_margin_start(notes_slide_label, 6);
 
     // Set current slide font
     // PangoAttrList *attrlist = pango_attr_list_new();
@@ -362,14 +363,18 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     PangoAttribute *attr = pango_attr_font_desc_new(font_desc);
     pango_attr_list_insert(attrlist, attr);
     gtk_label_set_attributes(GTK_LABEL(next_slide_label), attrlist);
-    gtk_label_set_attributes(GTK_LABEL(notes_slide_label), attrlist);
+    // gtk_label_set_attributes(GTK_LABEL(notes_slide_label), attrlist);
 
     // Create notes text view
-    GtkWidget *notes_text_view = gtk_text_view_new();
-    notes_text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(notes_text_view));
+    // GtkWidget *notes_text_view = gtk_text_view_new();
+    // notes_text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(notes_text_view));
+    notes_label = gtk_label_new("");
     GtkWidget *notes_scrolled_window = gtk_scrolled_window_new();
-    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(notes_scrolled_window), notes_text_view);
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(notes_scrolled_window), notes_label);
     // gtk_widget_set_hexpand(notes_scrolled_window, true);
+
+    gtk_label_set_xalign(GTK_LABEL(notes_label), 0.008);
+    gtk_label_set_yalign(GTK_LABEL(notes_label), 0.008);
 
     // Create previous button and callback
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
@@ -377,6 +382,8 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Slides label creation and initialization
     state_label = gtk_label_new("");
+    gtk_label_set_selectable(GTK_LABEL(state_label), true);
+    gtk_label_set_single_line_mode(GTK_LABEL(state_label), true);
     update_slides_label(); // To set basic label
 
     // Create next button and callback
@@ -397,6 +404,8 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Date time label creation & update
     datetime_label = gtk_label_new("");
+    gtk_label_set_selectable(GTK_LABEL(datetime_label), true);
+    gtk_label_set_single_line_mode(GTK_LABEL(datetime_label), true);
     sync_datetime_label(window);
     g_timeout_add_seconds(1, sync_datetime_label, NULL);
 
@@ -409,11 +418,15 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Initialize PDF path label
     pdf_path_label = gtk_label_new("");
+    gtk_label_set_selectable(GTK_LABEL(pdf_path_label), true);
+    gtk_label_set_single_line_mode(GTK_LABEL(pdf_path_label), true);
     gtk_widget_set_margin_start(pdf_path_label, 8);
     gtk_widget_set_margin_end(pdf_path_label, 8);
 
     // Create label for timer
     chrono_label = gtk_label_new("Chronometer: 00:00:00");
+    gtk_label_set_selectable(GTK_LABEL(chrono_label), true);
+    gtk_label_set_single_line_mode(GTK_LABEL(chrono_label), true);
 
     // Set widget in info center box
     gtk_center_box_set_start_widget(GTK_CENTER_BOX(infos_center_box), datetime_label);

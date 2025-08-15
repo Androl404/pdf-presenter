@@ -160,7 +160,8 @@ void load_slide_notes(const size_t slide) {
     }
     fclose(notes_file);
 
-    gtk_text_buffer_set_text(notes_text_buffer, " \0", -1);
+    gtk_label_set_text(GTK_LABEL(notes_label), "");
+    // gtk_text_buffer_set_text(notes_text_buffer, " \0", -1);
     // Actually find the slides notes
     gssize section = 0;
     gboolean new_section = false;
@@ -194,7 +195,8 @@ void load_slide_notes(const size_t slide) {
             }
         }
     }
-    gtk_text_buffer_set_text(notes_text_buffer, slide_notes->str, slide_notes->len);
+    gtk_label_set_text(GTK_LABEL(notes_label), slide_notes->str);
+    // gtk_text_buffer_set_text(notes_text_buffer, slide_notes->str, slide_notes->len);
 
     // Part of previous TODO
     // g_object_unref(cancellable);
