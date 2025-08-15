@@ -1,6 +1,7 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
 
+#include "gdk/gdkkeysyms.h"
 #include "main.h"
 #include "pdf.h"
 #include "ui.h"
@@ -80,6 +81,14 @@ gboolean on_key_pressed([[gnu::unused]]GtkEventControllerKey *controller, guint 
             // gtk_widget_activate_action(GTK_WIDGET(user_data), "win.open", NULL);
             open_PDF_action(NULL, NULL, user_data);
         }
+        return TRUE;
+
+    case GDK_KEY_minus:
+        notes_smaller_action(NULL, NULL, user_data);
+        return TRUE;
+
+    case GDK_KEY_plus:
+        notes_bigger_action(NULL, NULL, user_data);
         return TRUE;
 
     default:

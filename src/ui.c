@@ -181,7 +181,7 @@ static void end_presentation_action([[gnu::unused]]GSimpleAction *action, [[gnu:
     finish_presentation_action(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id), user_data);
 }
 
-static void notes_bigger_action([[gnu::unused]] GSimpleAction *action, [[gnu::unused]] GVariant *parameter, [[gnu::unused]] gpointer user_data) {
+void notes_bigger_action([[gnu::unused]] GSimpleAction *action, [[gnu::unused]] GVariant *parameter, [[gnu::unused]] gpointer user_data) {
     PangoAttrList *attrlist = pango_attr_list_new();
     PangoFontDescription* font_description_notes = pango_font_description_new();
     pango_font_description_set_size(font_description_notes, (++notes_font_size) * PANGO_SCALE);
@@ -191,7 +191,7 @@ static void notes_bigger_action([[gnu::unused]] GSimpleAction *action, [[gnu::un
     gtk_label_set_attributes(GTK_LABEL(notes_label), attrlist);
 }
 
-static void notes_smaller_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, [[gnu::unused]]gpointer user_data) {
+void notes_smaller_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, [[gnu::unused]]gpointer user_data) {
     PangoAttrList *attrlist = pango_attr_list_new();
     PangoFontDescription* font_description_notes = pango_font_description_new();
     pango_font_description_set_size(font_description_notes, (--notes_font_size) * PANGO_SCALE);

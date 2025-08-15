@@ -21,6 +21,8 @@ void on_activate(GtkApplication *app, gpointer user_data);
 void update_slides_label(void);
 void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+void notes_bigger_action(GSimpleAction *action, GVariant *parameter, gpointer user_data);
+void notes_smaller_action(GSimpleAction *action, GVariant *parameter, gpointer user_data);
 gboolean finish_presentation_action(GtkWindow *self, gpointer user_data);
 gboolean sync_datetime_label(gpointer user_data);
 void update_level_bar(void);
