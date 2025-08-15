@@ -373,8 +373,12 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(notes_scrolled_window), notes_label);
     // gtk_widget_set_hexpand(notes_scrolled_window, true);
 
-    gtk_label_set_xalign(GTK_LABEL(notes_label), 0.008);
-    gtk_label_set_yalign(GTK_LABEL(notes_label), 0.008);
+    gtk_label_set_xalign(GTK_LABEL(notes_label), 0);
+    gtk_label_set_yalign(GTK_LABEL(notes_label), 0);
+    gtk_widget_set_margin_start(notes_label, 5);
+    gtk_widget_set_margin_top(notes_label, 5);
+    gtk_label_set_wrap(GTK_LABEL(notes_label), true);
+    gtk_label_set_wrap_mode(GTK_LABEL(notes_label), PANGO_WRAP_WORD_CHAR);
 
     // Create previous button and callback
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
