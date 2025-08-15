@@ -5,6 +5,7 @@
 #include "ui.h"
 #include "pdf.h"
 #include "key.h"
+#include "notes.h"
 
 GtkWidget *current_page_drawing_area;
 GtkWidget *next_page_drawing_area;
@@ -14,16 +15,20 @@ GtkWidget *state_label;
 GtkWidget *datetime_label;
 GtkWidget *chrono_label;
 GtkWidget *pdf_path_label;
+GtkWidget *notes_label;
 presentation_data data_presentation = {
     .in_presentation = false,
     .window_presentation_id = 0
 };
 GDateTime *presentation_start_time;
+// GtkTextBuffer *notes_text_buffer;
+
+gsize notes_font_size;
 
 // File open callback for GtkFileDialog
-static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
+static void file_open_callback(GObject *source_object, GAsyncResult *res, [[gnu::unused]]gpointer user_data) {
     GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-    GtkWindow *window = GTK_WINDOW(user_data);
+    // GtkWindow *window = GTK_WINDOW(user_data);
     GError *error = NULL;
 
     GFile *file = gtk_file_dialog_open_finish(dialog, res, &error);
@@ -47,7 +52,7 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, gpoint
 }
 
 // Add these action callback functions
-void open_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+void open_PDF_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     g_print("Open action triggered\n");
 
@@ -76,12 +81,12 @@ void open_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     g_object_unref(filters);
 }
 
-static void quit_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+static void quit_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     gtk_window_close(window);
 }
 
-static void create_presentation_window(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+static void create_presentation_window([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     // Set presentation mode to true
     data_presentation.in_presentation = true;
 
@@ -123,6 +128,18 @@ static void create_presentation_window(GSimpleAction *action, GVariant *paramete
     } else if (monitor_number > 1) {
         gtk_window_fullscreen_on_monitor(GTK_WINDOW(window), GDK_MONITOR(g_list_model_get_object(monitors_list, 1)));
     }
+
+    // g_print("Number of monitor(s): %d\n", monitor_number); // Number of monitors
+    // for (guint i = 0; i < monitor_number; i++) {
+    //     g_print("%s\n", gdk_monitor_get_connector(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%s\n", gdk_monitor_get_description(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%s\n", gdk_monitor_get_manufacturer(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%s\n", gdk_monitor_get_model(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%d\n", gdk_monitor_get_refresh_rate(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%f\n", gdk_monitor_get_scale(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("%d\n", gdk_monitor_get_scale_factor(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     // g_list_model_get_object(monitors_list, i);
+    // }
 }
 
 void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
@@ -152,7 +169,7 @@ void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer
     presentation_start_time = g_date_time_new_now_local();
  }
 
-gboolean finish_presentation_action(GtkWindow *self, gpointer user_data) {
+gboolean finish_presentation_action([[gnu::unused]]GtkWindow *self, [[gnu::unused]]gpointer user_data) {
     if (data_presentation.in_presentation) {
         data_presentation.in_presentation = false;
         gtk_window_destroy(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id));
@@ -160,8 +177,28 @@ gboolean finish_presentation_action(GtkWindow *self, gpointer user_data) {
     return true;
 }
 
-static void end_presentation_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+static void end_presentation_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     finish_presentation_action(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id), user_data);
+}
+
+void notes_bigger_action([[gnu::unused]] GSimpleAction *action, [[gnu::unused]] GVariant *parameter, [[gnu::unused]] gpointer user_data) {
+    PangoAttrList *attrlist = pango_attr_list_new();
+    PangoFontDescription* font_description_notes = pango_font_description_new();
+    pango_font_description_set_size(font_description_notes, (++notes_font_size) * PANGO_SCALE);
+    // pango_font_description_set_weight(font_description, PANGO_WEIGHT_BOLD);
+    PangoAttribute *attr = pango_attr_font_desc_new(font_description_notes);
+    pango_attr_list_insert(attrlist, attr);
+    gtk_label_set_attributes(GTK_LABEL(notes_label), attrlist);
+}
+
+void notes_smaller_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, [[gnu::unused]]gpointer user_data) {
+    PangoAttrList *attrlist = pango_attr_list_new();
+    PangoFontDescription* font_description_notes = pango_font_description_new();
+    pango_font_description_set_size(font_description_notes, (--notes_font_size) * PANGO_SCALE);
+    // pango_font_description_set_weight(font_description, PANGO_WEIGHT_BOLD);
+    PangoAttribute *attr = pango_attr_font_desc_new(font_description_notes);
+    pango_attr_list_insert(attrlist, attr);
+    gtk_label_set_attributes(GTK_LABEL(notes_label), attrlist);
 }
 
 static gboolean close_all_windows(GtkWindow *self, gpointer user_data) {
@@ -169,9 +206,9 @@ static gboolean close_all_windows(GtkWindow *self, gpointer user_data) {
     exit(0);
 }
 
-static void about_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+static void about_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
-    const char* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>"};
+    const char* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>", NULL};
 
     GtkWidget *dialog = gtk_about_dialog_new();
     gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "PDF Presenter");
@@ -196,9 +233,13 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     GSimpleActionGroup *action_group = g_simple_action_group_new();
 
     // Create actions
-    GSimpleAction *open_act = g_simple_action_new("open", NULL);
-    g_signal_connect(open_act, "activate", G_CALLBACK(open_action), window);
-    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(open_act));
+    GSimpleAction *open_PDF_act = g_simple_action_new("openPDF", NULL);
+    g_signal_connect(open_PDF_act, "activate", G_CALLBACK(open_PDF_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(open_PDF_act));
+
+    GSimpleAction *open_notes_act = g_simple_action_new("opennotes", NULL);
+    g_signal_connect(open_notes_act, "activate", G_CALLBACK(open_notes_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(open_notes_act));
 
     GSimpleAction *quit_act = g_simple_action_new("quit", NULL);
     g_signal_connect(quit_act, "activate", G_CALLBACK(quit_action), window);
@@ -216,6 +257,14 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     g_signal_connect(end_presentation_act, "activate", G_CALLBACK(end_presentation_action), window);
     g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(end_presentation_act));
 
+    GSimpleAction *notes_bigger_act = g_simple_action_new("notes_bigger", NULL);
+    g_signal_connect(notes_bigger_act, "activate", G_CALLBACK(notes_bigger_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(notes_bigger_act));
+
+    GSimpleAction *notes_smaller_act = g_simple_action_new("notes_smaller", NULL);
+    g_signal_connect(notes_smaller_act, "activate", G_CALLBACK(notes_smaller_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(notes_smaller_act));
+
     GSimpleAction *about_act = g_simple_action_new("about", NULL);
     g_signal_connect(about_act, "activate", G_CALLBACK(about_action), window);
     g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(about_act));
@@ -228,7 +277,8 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
 
     // File menu
     GMenu *file_menu = g_menu_new();
-    g_menu_append(file_menu, "_Open", "win.open");
+    g_menu_append(file_menu, "_Open PDF file...", "win.openPDF");
+    g_menu_append(file_menu, "_Open notes file...", "win.opennotes");
     g_menu_append(file_menu, "_Quit", "win.quit");
 
     // Present menu
@@ -237,6 +287,11 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     g_menu_append(present_menu, "_Start presentation at current slide", "win.present_current");
     g_menu_append(present_menu, "_End presentation", "win.end_presentation");
 
+    // Notes menu
+    GMenu *notes_menu = g_menu_new();
+    g_menu_append(notes_menu, "_Notes font bigger", "win.notes_bigger");
+    g_menu_append(notes_menu, "_Notes font smaller", "win.notes_smaller");
+
     // Help menu
     GMenu *help_menu = g_menu_new();
     g_menu_append(help_menu, "_About", "win.about");
@@ -244,6 +299,7 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     // Add submenus to main menu
     g_menu_append_submenu(menu_model, "_File", G_MENU_MODEL(file_menu));
     g_menu_append_submenu(menu_model, "_Present", G_MENU_MODEL(present_menu));
+    g_menu_append_submenu(menu_model, "_Notes", G_MENU_MODEL(notes_menu));
     g_menu_append_submenu(menu_model, "_Help", G_MENU_MODEL(help_menu));
 
     // Create popover menu bar
@@ -255,7 +311,7 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
 void update_slides_label() {
     char label_string[(10 + (2*(pdf_data.total_pages / 10) + 1)) * sizeof(char)];
     sprintf(label_string, "Slide %zu of %zu", pdf_data.current_page + 1, pdf_data.total_pages);
-    if (pdf_data.absolute_PDF_path[0] != 0) {
+    if (pdf_data.pdf_loaded) {
         gtk_label_set_label(GTK_LABEL(state_label), label_string);
     } else {
         gtk_label_set_label(GTK_LABEL(state_label), "Slides counter");
@@ -266,9 +322,9 @@ void update_level_bar() {
     gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.current_page + 1);
 }
 
-gboolean sync_datetime_label(gpointer user_data) {
+gboolean sync_datetime_label([[gnu::unused]]gpointer user_data) {
     GDateTime *time = g_date_time_new_now_local();
-    char local_time_str[34], chronometer_str[22];
+    char local_time_str[34], chronometer_str[42];
     gint64 hours = 0, minutes = 0, seconds = 0;
     sprintf(local_time_str, "Local time: %04d/%02d/%02d %02d:%02d:%02d", g_date_time_get_year(time), g_date_time_get_month(time), g_date_time_get_day_of_month(time), g_date_time_get_hour(time), g_date_time_get_minute(time), g_date_time_get_second(time));
     gtk_label_set_label(GTK_LABEL(datetime_label), local_time_str);
@@ -292,21 +348,6 @@ gboolean sync_datetime_label(gpointer user_data) {
 }
 
 void on_activate(GtkApplication *app, gpointer user_data) {
-    // GdkDisplay* default_display = gdk_display_get_default();
-    // GListModel *monitors_list = gdk_display_get_monitors(default_display);
-    // guint monitor_number = g_list_model_get_n_items(monitors_list);
-    // g_print("Number of monitor(s): %d\n", monitor_number); // Number of monitors
-    // for (guint i = 0; i < monitor_number; i++) {
-    //     g_print("%s\n", gdk_monitor_get_connector(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%s\n", gdk_monitor_get_description(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%s\n", gdk_monitor_get_manufacturer(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%s\n", gdk_monitor_get_model(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%d\n", gdk_monitor_get_refresh_rate(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%f\n", gdk_monitor_get_scale(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%d\n", gdk_monitor_get_scale_factor(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     // g_list_model_get_object(monitors_list, i);
-    // }
-
     // Create a new window
     GtkWidget *window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "PDF Presenter");
@@ -337,18 +378,9 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // gtk_widget_set_margin_bottom(next_slide_label, 3);
 
     // Create notes label
-    GtkWidget *notes_slide_label = gtk_label_new("Notes");
-    gtk_widget_set_halign( notes_slide_label, GTK_ALIGN_START);
-    gtk_widget_set_margin_start(notes_slide_label, 6);
-
-    // Set current slide font
-    // PangoAttrList *attrlist = pango_attr_list_new();
-    // PangoFontDescription *font_desc = pango_font_description_new();
-    // pango_font_description_set_size(font_desc, 30 * PANGO_SCALE);
-    // pango_font_description_set_weight(font_desc, PANGO_WEIGHT_BOLD);
-    // PangoAttribute *attr = pango_attr_font_desc_new(font_desc);
-    // pango_attr_list_insert(attrlist, attr);
-    // gtk_label_set_attributes(GTK_LABEL(current_slide_label), attrlist);
+    // GtkWidget *notes_slide_label = gtk_label_new("Notes");
+    // gtk_widget_set_halign(notes_slide_label, GTK_ALIGN_START);
+    // gtk_widget_set_margin_start(notes_slide_label, 6);
 
     // Set next slide font
     PangoAttrList *attrlist = pango_attr_list_new();
@@ -358,13 +390,33 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     PangoAttribute *attr = pango_attr_font_desc_new(font_desc);
     pango_attr_list_insert(attrlist, attr);
     gtk_label_set_attributes(GTK_LABEL(next_slide_label), attrlist);
-    gtk_label_set_attributes(GTK_LABEL(notes_slide_label), attrlist);
+    // gtk_label_set_attributes(GTK_LABEL(notes_slide_label), attrlist);
 
     // Create notes text view
-    GtkWidget *notes_text_view = gtk_text_view_new();
+    // GtkWidget *notes_text_view = gtk_text_view_new();
+    // notes_text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(notes_text_view));
+    notes_label = gtk_label_new("");
     GtkWidget *notes_scrolled_window = gtk_scrolled_window_new();
-    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(notes_scrolled_window), notes_text_view);
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(notes_scrolled_window), notes_label);
     // gtk_widget_set_hexpand(notes_scrolled_window, true);
+
+    gtk_label_set_xalign(GTK_LABEL(notes_label), 0);
+    gtk_label_set_yalign(GTK_LABEL(notes_label), 0);
+    gtk_widget_set_margin_start(notes_label, 5);
+    gtk_widget_set_margin_top(notes_label, 5);
+    gtk_label_set_wrap(GTK_LABEL(notes_label), true);
+    gtk_label_set_wrap_mode(GTK_LABEL(notes_label), PANGO_WRAP_WORD_CHAR);
+
+    // Set default size font for notes
+    notes_font_size = 11;
+    PangoAttrList *attrlist_notes = pango_attr_list_new();
+    PangoFontDescription* font_description_notes = pango_font_description_new();
+    pango_font_description_set_size(font_description_notes, notes_font_size * PANGO_SCALE);
+    PangoAttribute *attr_notes = pango_attr_font_desc_new(font_description_notes);
+    pango_attr_list_insert(attrlist_notes, attr_notes);
+    gtk_label_set_attributes(GTK_LABEL(notes_label), attrlist_notes);
+    // gtk_label_set_attributes(GTK_LABEL(notes_slide_label), attrlist);
+
 
     // Create previous button and callback
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
@@ -372,6 +424,8 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Slides label creation and initialization
     state_label = gtk_label_new("");
+    gtk_label_set_selectable(GTK_LABEL(state_label), true);
+    gtk_label_set_single_line_mode(GTK_LABEL(state_label), true);
     update_slides_label(); // To set basic label
 
     // Create next button and callback
@@ -392,6 +446,8 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Date time label creation & update
     datetime_label = gtk_label_new("");
+    gtk_label_set_selectable(GTK_LABEL(datetime_label), true);
+    gtk_label_set_single_line_mode(GTK_LABEL(datetime_label), true);
     sync_datetime_label(window);
     g_timeout_add_seconds(1, sync_datetime_label, NULL);
 
@@ -404,11 +460,15 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Initialize PDF path label
     pdf_path_label = gtk_label_new("");
+    gtk_label_set_selectable(GTK_LABEL(pdf_path_label), true);
+    gtk_label_set_single_line_mode(GTK_LABEL(pdf_path_label), true);
     gtk_widget_set_margin_start(pdf_path_label, 8);
     gtk_widget_set_margin_end(pdf_path_label, 8);
 
     // Create label for timer
     chrono_label = gtk_label_new("Chronometer: 00:00:00");
+    gtk_label_set_selectable(GTK_LABEL(chrono_label), true);
+    gtk_label_set_single_line_mode(GTK_LABEL(chrono_label), true);
 
     // Set widget in info center box
     gtk_center_box_set_start_widget(GTK_CENTER_BOX(infos_center_box), datetime_label);
@@ -469,4 +529,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // Load PDF from command line arguments
     load_defered_pdf();
+
+    // Load notes from command line arguments
+    load_defered_notes();
 }

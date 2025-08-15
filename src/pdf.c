@@ -8,6 +8,8 @@
 
 #include "pdf.h"
 #include "ui.h"
+#include "notes.h"
+
 
 char *pdf_to_load = NULL;
 
@@ -30,7 +32,11 @@ void load_defered_pdf(void) {
 void load_PDF_file(const char* path) {
     // Load PDF document
     GError *error = NULL;
-    char *uri = g_filename_to_uri(realpath(path, pdf_data.absolute_PDF_path), NULL, &error);
+    pdf_data.absolute_PDF_path = g_string_new(NULL);
+    char* absolute_PDF_path_temp = malloc((PATH_MAX + 1) * sizeof(char));
+    char *uri = g_filename_to_uri(realpath(path, absolute_PDF_path_temp), NULL, &error);
+    pdf_data.absolute_PDF_path = g_string_append(pdf_data.absolute_PDF_path, absolute_PDF_path_temp);
+    free(absolute_PDF_path_temp);
 
     // Verify path of PDF
     if (!uri) {
@@ -46,6 +52,7 @@ void load_PDF_file(const char* path) {
     document = poppler_document_new_from_file(uri, NULL, &error);
     pdf_data.total_pages = poppler_document_get_n_pages(document);
     pdf_data.current_page = 0;
+    pdf_data.pdf_loaded = true;
     g_free(uri);
 
     // Set level bar
@@ -65,12 +72,34 @@ void load_PDF_file(const char* path) {
     update_slides_label();
 
     // Update PDF path label
-    gtk_label_set_label(GTK_LABEL(pdf_path_label), pdf_data.absolute_PDF_path);
+    gtk_label_set_label(GTK_LABEL(pdf_path_label), pdf_data.absolute_PDF_path->str);
+}
+
+void custom_PDF_page(const gsize PDF_page) {
+    // Verify if a PDF file is opened and the PDF page exists
+    if (!pdf_data.pdf_loaded || (PDF_page > pdf_data.total_pages - 1)) {
+        gtk_widget_error_bell(current_page_drawing_area);
+        return;
+    }
+
+    // Actually update PDF pages
+    pdf_data.current_page = PDF_page;
+    queue_all_drawing_areas(); // Redraw all drawing areas
+
+    // Update PDF level bar
+    update_level_bar();
+
+    // Update slides label
+    update_slides_label();
+
+    // Load notes if we loaded a file
+    if (data_notes.notes_loaded)
+        load_slide_notes(pdf_data.current_page);
 }
 
 void next_PDF_page(void) {
     // Verify if a PDF file is opened and the PDF page exists
-    if (pdf_data.absolute_PDF_path[0] == 0 || !(pdf_data.current_page < pdf_data.total_pages - 1)) {
+    if (!pdf_data.pdf_loaded || !(pdf_data.current_page < pdf_data.total_pages - 1)) {
         gtk_widget_error_bell(current_page_drawing_area);
         return;
     }
@@ -84,11 +113,15 @@ void next_PDF_page(void) {
 
     // Update slides label
     update_slides_label();
+
+    // Load notes if we loaded a file
+    if (data_notes.notes_loaded)
+        load_slide_notes(pdf_data.current_page);
 }
 
 void previous_PDF_page(void) {
     // Verify if a PDF file is opened and if the PDF page exists
-    if (pdf_data.absolute_PDF_path[0] == 0 || !(pdf_data.current_page > 0)) {
+    if (!pdf_data.pdf_loaded || !(pdf_data.current_page > 0)) {
         gtk_widget_error_bell(current_page_drawing_area);
         return;
     }
@@ -102,6 +135,11 @@ void previous_PDF_page(void) {
 
     // Update slides label
     update_slides_label();
+
+    // Load notes if we loaded a file
+    if (data_notes.notes_loaded)
+        load_slide_notes(pdf_data.current_page);
+
 }
 
 void queue_all_drawing_areas() {
@@ -112,7 +150,7 @@ void queue_all_drawing_areas() {
 }
 
 // This function is called each time the drawing area gets resized
-void draw_current_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
+void draw_current_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int width, int height, [[gnu::unused]]gpointer user_data) {
     // Verify if document exists
     if (!document) return;
 
@@ -168,7 +206,7 @@ void draw_current_page(GtkDrawingArea *area, cairo_t *cr, int width, int height,
 }
 
 // This function is called each time the drawing area gets resized
-void draw_next_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
+void draw_next_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int width, int height, [[gnu::unused]]gpointer user_data) {
     if (!document) return;
 
     if ((pdf_data.current_page + 1) >= pdf_data.total_pages) return;

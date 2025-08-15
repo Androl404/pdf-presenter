@@ -1,13 +1,14 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
 
+#include "gdk/gdkkeysyms.h"
 #include "main.h"
 #include "pdf.h"
 #include "ui.h"
 #include "key.h"
 
 // Callback function for key release events
-gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, gpointer user_data) {
+gboolean on_key_pressed([[gnu::unused]]GtkEventControllerKey *controller, guint keyval, [[gnu::unused]]guint keycode, GdkModifierType state, gpointer user_data) {
     // Check for specific keys
     switch (keyval) {
     case GDK_KEY_F5:
@@ -59,6 +60,13 @@ gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint k
         // Add your logic here
         return TRUE; // Event handled
 
+    case GDK_KEY_g:
+        custom_PDF_page(0);
+        return TRUE;
+    case GDK_KEY_G:
+        custom_PDF_page(pdf_data.total_pages - 1);
+        return TRUE;
+
     case GDK_KEY_q:
     case GDK_KEY_Q:
         if (data_presentation.in_presentation) {
@@ -71,8 +79,16 @@ gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint k
     case GDK_KEY_o:
         if (state & GDK_CONTROL_MASK) {
             // gtk_widget_activate_action(GTK_WIDGET(user_data), "win.open", NULL);
-            open_action(NULL, NULL, user_data);
+            open_PDF_action(NULL, NULL, user_data);
         }
+        return TRUE;
+
+    case GDK_KEY_minus:
+        notes_smaller_action(NULL, NULL, user_data);
+        return TRUE;
+
+    case GDK_KEY_plus:
+        notes_bigger_action(NULL, NULL, user_data);
         return TRUE;
 
     default:
