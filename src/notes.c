@@ -128,7 +128,7 @@ void load_defered_notes(void) {
         load_notes_file(notes_to_load);
 }
 
-void load_slide_notes(const size_t slide) {
+void load_slide_notes(const gsize slide) {
     if (!data_notes.notes_loaded)
         return;
 

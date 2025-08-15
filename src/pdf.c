@@ -75,6 +75,28 @@ void load_PDF_file(const char* path) {
     gtk_label_set_label(GTK_LABEL(pdf_path_label), pdf_data.absolute_PDF_path->str);
 }
 
+void custom_PDF_page(const gsize PDF_page) {
+    // Verify if a PDF file is opened and the PDF page exists
+    if (!pdf_data.pdf_loaded || (PDF_page > pdf_data.total_pages - 1) || (PDF_page < 0)) {
+        gtk_widget_error_bell(current_page_drawing_area);
+        return;
+    }
+
+    // Actually update PDF pages
+    pdf_data.current_page = PDF_page;
+    queue_all_drawing_areas(); // Redraw all drawing areas
+
+    // Update PDF level bar
+    update_level_bar();
+
+    // Update slides label
+    update_slides_label();
+
+    // Load notes if we loaded a file
+    if (data_notes.notes_loaded)
+        load_slide_notes(pdf_data.current_page);
+}
+
 void next_PDF_page(void) {
     // Verify if a PDF file is opened and the PDF page exists
     if (!pdf_data.pdf_loaded || !(pdf_data.current_page < pdf_data.total_pages - 1)) {

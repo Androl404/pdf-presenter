@@ -17,4 +17,4 @@ void load_notes_file(const char *filepath);
 void get_note_file_extension(void);
 gboolean defer_notes_loading(int argc, char **argv);
 void load_defered_notes(void);
-void load_slide_notes(const size_t slide);
+void load_slide_notes(const gsize slide);

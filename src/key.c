@@ -59,6 +59,13 @@ gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint k
         // Add your logic here
         return TRUE; // Event handled
 
+    case GDK_KEY_g:
+        custom_PDF_page(0);
+        return TRUE;
+    case GDK_KEY_G:
+        custom_PDF_page(pdf_data.total_pages - 1);
+        return TRUE;
+
     case GDK_KEY_q:
     case GDK_KEY_Q:
         if (data_presentation.in_presentation) {
