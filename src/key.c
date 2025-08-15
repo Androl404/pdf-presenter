@@ -7,7 +7,7 @@
 #include "key.h"
 
 // Callback function for key release events
-gboolean on_key_pressed(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, gpointer user_data) {
+gboolean on_key_pressed([[gnu::unused]]GtkEventControllerKey *controller, guint keyval, [[gnu::unused]]guint keycode, GdkModifierType state, gpointer user_data) {
     // Check for specific keys
     switch (keyval) {
     case GDK_KEY_F5:

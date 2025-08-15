@@ -12,9 +12,9 @@ char *notes_to_load = NULL;
 notes_data data_notes = {0};
 
 // File open callback for GtkFileDialog
-static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
+static void file_open_callback(GObject *source_object, GAsyncResult *res, [[gnu::unused]]gpointer user_data) {
     GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-    GtkWindow *window = GTK_WINDOW(user_data);
+    // GtkWindow *window = GTK_WINDOW(user_data);
     GError *error = NULL;
 
     GFile *file = gtk_file_dialog_open_finish(dialog, res, &error);
@@ -38,7 +38,7 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, gpoint
 }
 
 // Add these action callback functions
-void open_notes_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+void open_notes_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     g_print("Open action triggered\n");
 
@@ -163,7 +163,7 @@ void load_slide_notes(const gsize slide) {
     gtk_label_set_text(GTK_LABEL(notes_label), "");
     // gtk_text_buffer_set_text(notes_text_buffer, " \0", -1);
     // Actually find the slides notes
-    gssize section = 0;
+    gsize section = 0;
     gboolean new_section = false;
     GString* slide_notes = g_string_new(NULL);
     for (gsize j = 0; j < notes_file_string->len; j++) {
@@ -184,7 +184,7 @@ void load_slide_notes(const gsize slide) {
         if (new_section) {
             section++;
         }
-        if (section - 1 == slide) {
+        if ((section - 1) == slide) {
             if (data_notes.extension == MARKDOWN_FILE)
                 g_string_append_c(slide_notes, *(notes_file_string->str + j));
             else {

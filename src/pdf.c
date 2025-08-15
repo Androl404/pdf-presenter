@@ -77,7 +77,7 @@ void load_PDF_file(const char* path) {
 
 void custom_PDF_page(const gsize PDF_page) {
     // Verify if a PDF file is opened and the PDF page exists
-    if (!pdf_data.pdf_loaded || (PDF_page > pdf_data.total_pages - 1) || (PDF_page < 0)) {
+    if (!pdf_data.pdf_loaded || (PDF_page > pdf_data.total_pages - 1)) {
         gtk_widget_error_bell(current_page_drawing_area);
         return;
     }
@@ -150,7 +150,7 @@ void queue_all_drawing_areas() {
 }
 
 // This function is called each time the drawing area gets resized
-void draw_current_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
+void draw_current_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int width, int height, [[gnu::unused]]gpointer user_data) {
     // Verify if document exists
     if (!document) return;
 
@@ -206,7 +206,7 @@ void draw_current_page(GtkDrawingArea *area, cairo_t *cr, int width, int height,
 }
 
 // This function is called each time the drawing area gets resized
-void draw_next_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data) {
+void draw_next_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int width, int height, [[gnu::unused]]gpointer user_data) {
     if (!document) return;
 
     if ((pdf_data.current_page + 1) >= pdf_data.total_pages) return;

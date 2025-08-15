@@ -24,9 +24,9 @@ GDateTime *presentation_start_time;
 // GtkTextBuffer *notes_text_buffer;
 
 // File open callback for GtkFileDialog
-static void file_open_callback(GObject *source_object, GAsyncResult *res, gpointer user_data) {
+static void file_open_callback(GObject *source_object, GAsyncResult *res, [[gnu::unused]]gpointer user_data) {
     GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
-    GtkWindow *window = GTK_WINDOW(user_data);
+    // GtkWindow *window = GTK_WINDOW(user_data);
     GError *error = NULL;
 
     GFile *file = gtk_file_dialog_open_finish(dialog, res, &error);
@@ -50,7 +50,7 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, gpoint
 }
 
 // Add these action callback functions
-void open_PDF_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+void open_PDF_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     g_print("Open action triggered\n");
 
@@ -79,12 +79,12 @@ void open_PDF_action(GSimpleAction *action, GVariant *parameter, gpointer user_d
     g_object_unref(filters);
 }
 
-static void quit_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+static void quit_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     gtk_window_close(window);
 }
 
-static void create_presentation_window(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+static void create_presentation_window([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     // Set presentation mode to true
     data_presentation.in_presentation = true;
 
@@ -167,7 +167,7 @@ void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer
     presentation_start_time = g_date_time_new_now_local();
  }
 
-gboolean finish_presentation_action(GtkWindow *self, gpointer user_data) {
+gboolean finish_presentation_action([[gnu::unused]]GtkWindow *self, [[gnu::unused]]gpointer user_data) {
     if (data_presentation.in_presentation) {
         data_presentation.in_presentation = false;
         gtk_window_destroy(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id));
@@ -175,7 +175,7 @@ gboolean finish_presentation_action(GtkWindow *self, gpointer user_data) {
     return true;
 }
 
-static void end_presentation_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+static void end_presentation_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     finish_presentation_action(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id), user_data);
 }
 
@@ -184,7 +184,7 @@ static gboolean close_all_windows(GtkWindow *self, gpointer user_data) {
     exit(0);
 }
 
-static void about_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
+static void about_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     const char* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>", NULL};
 
@@ -286,9 +286,9 @@ void update_level_bar() {
     gtk_level_bar_set_value(GTK_LEVEL_BAR(PDF_level_bar), (double)pdf_data.current_page + 1);
 }
 
-gboolean sync_datetime_label(gpointer user_data) {
+gboolean sync_datetime_label([[gnu::unused]]gpointer user_data) {
     GDateTime *time = g_date_time_new_now_local();
-    char local_time_str[34], chronometer_str[22];
+    char local_time_str[34], chronometer_str[42];
     gint64 hours = 0, minutes = 0, seconds = 0;
     sprintf(local_time_str, "Local time: %04d/%02d/%02d %02d:%02d:%02d", g_date_time_get_year(time), g_date_time_get_month(time), g_date_time_get_day_of_month(time), g_date_time_get_hour(time), g_date_time_get_minute(time), g_date_time_get_second(time));
     gtk_label_set_label(GTK_LABEL(datetime_label), local_time_str);
