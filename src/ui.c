@@ -23,6 +23,8 @@ presentation_data data_presentation = {
 GDateTime *presentation_start_time;
 // GtkTextBuffer *notes_text_buffer;
 
+gsize notes_font_size;
+
 // File open callback for GtkFileDialog
 static void file_open_callback(GObject *source_object, GAsyncResult *res, [[gnu::unused]]gpointer user_data) {
     GtkFileDialog *dialog = GTK_FILE_DIALOG(source_object);
@@ -179,6 +181,26 @@ static void end_presentation_action([[gnu::unused]]GSimpleAction *action, [[gnu:
     finish_presentation_action(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id), user_data);
 }
 
+static void notes_bigger_action([[gnu::unused]] GSimpleAction *action, [[gnu::unused]] GVariant *parameter, [[gnu::unused]] gpointer user_data) {
+    PangoAttrList *attrlist = pango_attr_list_new();
+    PangoFontDescription* font_description_notes = pango_font_description_new();
+    pango_font_description_set_size(font_description_notes, (++notes_font_size) * PANGO_SCALE);
+    // pango_font_description_set_weight(font_description, PANGO_WEIGHT_BOLD);
+    PangoAttribute *attr = pango_attr_font_desc_new(font_description_notes);
+    pango_attr_list_insert(attrlist, attr);
+    gtk_label_set_attributes(GTK_LABEL(notes_label), attrlist);
+}
+
+static void notes_smaller_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, [[gnu::unused]]gpointer user_data) {
+    PangoAttrList *attrlist = pango_attr_list_new();
+    PangoFontDescription* font_description_notes = pango_font_description_new();
+    pango_font_description_set_size(font_description_notes, (--notes_font_size) * PANGO_SCALE);
+    // pango_font_description_set_weight(font_description, PANGO_WEIGHT_BOLD);
+    PangoAttribute *attr = pango_attr_font_desc_new(font_description_notes);
+    pango_attr_list_insert(attrlist, attr);
+    gtk_label_set_attributes(GTK_LABEL(notes_label), attrlist);
+}
+
 static gboolean close_all_windows(GtkWindow *self, gpointer user_data) {
     finish_presentation_action(self, user_data);
     exit(0);
@@ -235,6 +257,14 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     g_signal_connect(end_presentation_act, "activate", G_CALLBACK(end_presentation_action), window);
     g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(end_presentation_act));
 
+    GSimpleAction *notes_bigger_act = g_simple_action_new("notes_bigger", NULL);
+    g_signal_connect(notes_bigger_act, "activate", G_CALLBACK(notes_bigger_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(notes_bigger_act));
+
+    GSimpleAction *notes_smaller_act = g_simple_action_new("notes_smaller", NULL);
+    g_signal_connect(notes_smaller_act, "activate", G_CALLBACK(notes_smaller_action), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(notes_smaller_act));
+
     GSimpleAction *about_act = g_simple_action_new("about", NULL);
     g_signal_connect(about_act, "activate", G_CALLBACK(about_action), window);
     g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(about_act));
@@ -257,6 +287,11 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     g_menu_append(present_menu, "_Start presentation at current slide", "win.present_current");
     g_menu_append(present_menu, "_End presentation", "win.end_presentation");
 
+    // Notes menu
+    GMenu *notes_menu = g_menu_new();
+    g_menu_append(notes_menu, "_Notes font bigger", "win.notes_bigger");
+    g_menu_append(notes_menu, "_Notes font smaller", "win.notes_smaller");
+
     // Help menu
     GMenu *help_menu = g_menu_new();
     g_menu_append(help_menu, "_About", "win.about");
@@ -264,6 +299,7 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     // Add submenus to main menu
     g_menu_append_submenu(menu_model, "_File", G_MENU_MODEL(file_menu));
     g_menu_append_submenu(menu_model, "_Present", G_MENU_MODEL(present_menu));
+    g_menu_append_submenu(menu_model, "_Notes", G_MENU_MODEL(notes_menu));
     g_menu_append_submenu(menu_model, "_Help", G_MENU_MODEL(help_menu));
 
     // Create popover menu bar
@@ -346,15 +382,6 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // gtk_widget_set_halign(notes_slide_label, GTK_ALIGN_START);
     // gtk_widget_set_margin_start(notes_slide_label, 6);
 
-    // Set current slide font
-    // PangoAttrList *attrlist = pango_attr_list_new();
-    // PangoFontDescription *font_desc = pango_font_description_new();
-    // pango_font_description_set_size(font_desc, 30 * PANGO_SCALE);
-    // pango_font_description_set_weight(font_desc, PANGO_WEIGHT_BOLD);
-    // PangoAttribute *attr = pango_attr_font_desc_new(font_desc);
-    // pango_attr_list_insert(attrlist, attr);
-    // gtk_label_set_attributes(GTK_LABEL(current_slide_label), attrlist);
-
     // Set next slide font
     PangoAttrList *attrlist = pango_attr_list_new();
     PangoFontDescription *font_desc = pango_font_description_new();
@@ -379,6 +406,17 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_top(notes_label, 5);
     gtk_label_set_wrap(GTK_LABEL(notes_label), true);
     gtk_label_set_wrap_mode(GTK_LABEL(notes_label), PANGO_WRAP_WORD_CHAR);
+
+    // Set default size font for notes
+    notes_font_size = 11;
+    PangoAttrList *attrlist_notes = pango_attr_list_new();
+    PangoFontDescription* font_description_notes = pango_font_description_new();
+    pango_font_description_set_size(font_description_notes, notes_font_size * PANGO_SCALE);
+    PangoAttribute *attr_notes = pango_attr_font_desc_new(font_description_notes);
+    pango_attr_list_insert(attrlist_notes, attr_notes);
+    gtk_label_set_attributes(GTK_LABEL(notes_label), attrlist_notes);
+    // gtk_label_set_attributes(GTK_LABEL(notes_slide_label), attrlist);
+
 
     // Create previous button and callback
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
