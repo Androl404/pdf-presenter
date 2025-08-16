@@ -1,7 +1,7 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
+#include <stdio.h>
 
-#include "gtk/gtkshortcut.h"
 #include "main.h"
 #include "ui.h"
 #include "pdf.h"
@@ -129,18 +129,6 @@ static void create_presentation_window([[gnu::unused]]GSimpleAction *action, [[g
     } else if (monitor_number > 1) {
         gtk_window_fullscreen_on_monitor(GTK_WINDOW(window), GDK_MONITOR(g_list_model_get_object(monitors_list, 1)));
     }
-
-    // g_print("Number of monitor(s): %d\n", monitor_number); // Number of monitors
-    // for (guint i = 0; i < monitor_number; i++) {
-    //     g_print("%s\n", gdk_monitor_get_connector(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%s\n", gdk_monitor_get_description(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%s\n", gdk_monitor_get_manufacturer(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%s\n", gdk_monitor_get_model(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%d\n", gdk_monitor_get_refresh_rate(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%f\n", gdk_monitor_get_scale(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("%d\n", gdk_monitor_get_scale_factor(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     // g_list_model_get_object(monitors_list, i);
-    // }
 }
 
 void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
@@ -348,6 +336,89 @@ gboolean sync_datetime_label([[gnu::unused]]gpointer user_data) {
     return TRUE;
 }
 
+GtkWidget *get_diplays_box() {
+    GdkDisplay* default_display = gdk_display_get_default(); // Get display, more at a higher level, like the window manager
+    GListModel *monitors_list = gdk_display_get_monitors(default_display); // Get a list of all of the actuals monitor contained by that display
+    guint monitor_number = g_list_model_get_n_items(monitors_list); // Get the number of monitors
+
+    // Print monitors infos
+    // g_print("Number of monitor(s): %d\n", monitor_number); // Number of monitors
+    // for (guint i = 0; i < monitor_number; i++) {
+    //     GdkRectangle geometry = {0};
+    //     gdk_monitor_get_geometry(GDK_MONITOR(g_list_model_get_object(monitors_list, i)), &geometry);
+    //     g_print("Connector: %s\n", gdk_monitor_get_connector(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("Description: %s\n", gdk_monitor_get_description(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("Geometry:\n    x = %d;\n    y = %d;\n    width = %d;\n    height = %d;\n", geometry.x, geometry.y, geometry.width, geometry.height);
+    //     g_print("Manufacturer: %s\n", gdk_monitor_get_manufacturer(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("Model: %s\n", gdk_monitor_get_model(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("Refresh rate: %d\n", gdk_monitor_get_refresh_rate(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("Scale: %f\n", gdk_monitor_get_scale(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     g_print("Scale factor: %d\n", gdk_monitor_get_scale_factor(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
+    //     // g_list_model_get_object(monitors_list, i);
+    // }
+
+    GtkWidget *frame_monitors[monitor_number];
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    for (guint i = 0; i < monitor_number; i++) {
+        GdkRectangle geometry = {0};
+        gdk_monitor_get_geometry(GDK_MONITOR(g_list_model_get_object(monitors_list, i)), &geometry);
+        const char *monitor_description = gdk_monitor_get_model(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
+        const char *monitor_manufacturer = gdk_monitor_get_manufacturer(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
+        const char *monitor_connector = gdk_monitor_get_connector(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
+        const int refresh_rate = gdk_monitor_get_refresh_rate(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
+        const int x = geometry.x;
+        const int y = geometry.y;
+        const int width = geometry.width;
+        const int height = geometry.height;
+
+        // Construct first line for display
+        char *monitor_first_line = malloc(strlen(monitor_description) + strlen(monitor_manufacturer) + strlen(monitor_connector) + 4 + 1);
+        strcpy(monitor_first_line, monitor_description);
+        strcat(monitor_first_line, ", ");
+        strcat(monitor_first_line, monitor_manufacturer);
+        strcat(monitor_first_line, ", ");
+        strcat(monitor_first_line, monitor_connector);
+
+        // Construct first line for display
+        char monitor_final_line[strlen(monitor_first_line) + 42]; // One caracter more
+        sprintf(monitor_final_line, "%s\n%dx%d, %dHz at (%d,%d)", monitor_first_line, width, height, refresh_rate/1000, x, y);
+
+        // Setting the frame
+        frame_monitors[i] = gtk_frame_new(NULL);
+        gtk_widget_set_margin_start(frame_monitors[i], 10);
+        gtk_widget_set_margin_end(frame_monitors[i], 10);
+        gtk_widget_set_margin_bottom(frame_monitors[i], 2);
+        gtk_widget_set_margin_top(frame_monitors[i], 8);
+
+        // Setting the icon
+        GIcon *monitor_icon = g_themed_icon_new("video-display");
+        GtkWidget *monitor_image = gtk_image_new_from_gicon(monitor_icon);
+        gtk_image_set_pixel_size(GTK_IMAGE(monitor_image), 50);
+
+        // Settting the box with the main content
+        GtkWidget *horizontal_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+        gtk_widget_set_margin_start(horizontal_box, 5);
+        gtk_widget_set_margin_end(horizontal_box, 5);
+        gtk_widget_set_margin_bottom(horizontal_box, 5);
+        gtk_widget_set_margin_top(horizontal_box, 5);
+        gtk_box_append(GTK_BOX(horizontal_box), monitor_image);
+        // GtkWidget *vertical_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+        // gtk_box_set_homogeneous(GTK_BOX(vertical_box), true);
+        GtkWidget *final_label = gtk_label_new(monitor_final_line);
+        // gtk_box_append(GTK_BOX(vertical_box), first_label);
+        // GtkWidget *second_label = gtk_label_new(monitor_final_line);
+        // gtk_box_append(GTK_BOX(vertical_box), second_label);
+        // gtk_label_set_justify(GTK_LABEL(second_label), GTK_JUSTIFY_LEFT);
+        gtk_box_append(GTK_BOX(horizontal_box), final_label);
+        gtk_frame_set_child(GTK_FRAME(frame_monitors[i]), horizontal_box);
+        gtk_box_append(GTK_BOX(box), frame_monitors[i]);
+
+        // Free string memory
+        free(monitor_first_line);
+    }
+    return box;
+}
+
 void on_activate(GtkApplication *app, gpointer user_data) {
     // Create a new window
     GtkWidget *window = gtk_application_window_new(app);
@@ -472,13 +543,19 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(next_page_drawing_area), 400); // Setting the width of the next drawing area
     gtk_widget_set_hexpand(notes_scrolled_window, TRUE);
 
+    // To set the right paned widget with next slides and notes
+    GtkWidget *notes_display_notebook = gtk_notebook_new();
+    GtkWidget *notebook_notes_label = gtk_label_new("Notes");
+    GtkWidget *notebook_displays_label = gtk_label_new("Displays");
+    gtk_notebook_append_page(GTK_NOTEBOOK(notes_display_notebook), notes_scrolled_window, notebook_notes_label);
+    gtk_notebook_append_page(GTK_NOTEBOOK(notes_display_notebook), get_diplays_box(), notebook_displays_label);
     GtkWidget *box_PDF_next_page = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_append(GTK_BOX(box_PDF_next_page), next_slide_label);
     gtk_box_append(GTK_BOX(box_PDF_next_page), next_page_drawing_area);
     GtkWidget *frame_next_PDF_page = gtk_frame_new(NULL);
     gtk_frame_set_child(GTK_FRAME(frame_next_PDF_page), box_PDF_next_page);
     GtkWidget *frame_notes = gtk_frame_new(NULL);
-    gtk_frame_set_child(GTK_FRAME(frame_notes), notes_scrolled_window);
+    gtk_frame_set_child(GTK_FRAME(frame_notes), notes_display_notebook);
     GtkWidget *next_paned = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     gtk_paned_set_start_child(GTK_PANED(next_paned), frame_next_PDF_page);
     gtk_paned_set_end_child(GTK_PANED(next_paned), frame_notes);
