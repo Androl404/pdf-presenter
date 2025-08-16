@@ -362,6 +362,11 @@ static void set_presentation_monitor(GtkButton *self, gpointer user_data) {
         set_default_presentation_monitor();
         refresh_display_list(self, gtk_application_get_window_by_id(app, 0));
     }
+
+    if (data_presentation.in_presentation) {
+        gtk_window_destroy(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id));
+        create_presentation_window(NULL, NULL, gtk_application_get_window_by_id(app, 0));
+    }
 }
 
 GtkWidget *get_diplays_box(gpointer user_data) {
@@ -431,7 +436,7 @@ GtkWidget *get_diplays_box(gpointer user_data) {
         gtk_widget_set_margin_top(horizontal_box, 5);
         gtk_box_append(GTK_BOX(horizontal_box), monitor_image);
         GtkWidget *final_label = gtk_label_new(monitor_final_line);
-        gtk_label_set_selectable(GTK_LABEL(final_label), true);
+        // gtk_label_set_selectable(GTK_LABEL(final_label), true);
         gtk_box_append(GTK_BOX(horizontal_box), final_label);
         gtk_frame_set_child(GTK_FRAME(frame_monitors[i]), horizontal_box);
         gtk_box_append(GTK_BOX(box), frame_monitors[i]);
