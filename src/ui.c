@@ -549,10 +549,12 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // Create font smaller button and callback
     GtkWidget *button_font_smaller = gtk_button_new_from_icon_name("format-text-direction-rtl-symbolic");
     g_signal_connect(button_font_smaller, "clicked", G_CALLBACK(notes_smaller_button_action), window);
+    gtk_widget_set_tooltip_markup(button_font_smaller, "Decrease notes text size");
 
     // Create font bigger and callback
     GtkWidget *button_font_bigger = gtk_button_new_from_icon_name("format-text-direction-ltr-symbolic");
     g_signal_connect(button_font_bigger, "clicked", G_CALLBACK(notes_bigger_button_action), window);
+    gtk_widget_set_tooltip_markup(button_font_bigger, "Increase notes text size");
 
     // Put next, font smaller and font bigger in box
     GtkWidget *end_widget_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
