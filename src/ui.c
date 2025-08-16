@@ -22,7 +22,7 @@ presentation_data data_presentation = {
     .window_presentation_id = 0
 };
 GDateTime *presentation_start_time;
-// GtkTextBuffer *notes_text_buffer;
+GtkWidget *notes_display_notebook;
 
 gsize notes_font_size;
 
@@ -147,7 +147,6 @@ void present_first_action(GSimpleAction *action, GVariant *parameter, gpointer u
     pdf_data.current_page = 0;
 
     create_presentation_window(action, parameter, user_data);
-
 }
 
 void present_current_action(GSimpleAction *action, GVariant *parameter, gpointer user_data) {
@@ -336,7 +335,14 @@ gboolean sync_datetime_label([[gnu::unused]]gpointer user_data) {
     return TRUE;
 }
 
-GtkWidget *get_diplays_box() {
+static void refresh_display_list([[gnu::unused]]GtkButton *self, gpointer user_data) {
+    gtk_notebook_remove_page(GTK_NOTEBOOK(notes_display_notebook), 1);
+    GtkWidget* notebook_displays_label = gtk_label_new("Displays");
+    gtk_notebook_append_page(GTK_NOTEBOOK(notes_display_notebook), get_diplays_box(user_data), notebook_displays_label);
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(notes_display_notebook), 1);
+}
+
+GtkWidget *get_diplays_box(gpointer user_data) {
     GdkDisplay* default_display = gdk_display_get_default(); // Get display, more at a higher level, like the window manager
     GListModel *monitors_list = gdk_display_get_monitors(default_display); // Get a list of all of the actuals monitor contained by that display
     guint monitor_number = g_list_model_get_n_items(monitors_list); // Get the number of monitors
@@ -402,13 +408,7 @@ GtkWidget *get_diplays_box() {
         gtk_widget_set_margin_bottom(horizontal_box, 5);
         gtk_widget_set_margin_top(horizontal_box, 5);
         gtk_box_append(GTK_BOX(horizontal_box), monitor_image);
-        // GtkWidget *vertical_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-        // gtk_box_set_homogeneous(GTK_BOX(vertical_box), true);
         GtkWidget *final_label = gtk_label_new(monitor_final_line);
-        // gtk_box_append(GTK_BOX(vertical_box), first_label);
-        // GtkWidget *second_label = gtk_label_new(monitor_final_line);
-        // gtk_box_append(GTK_BOX(vertical_box), second_label);
-        // gtk_label_set_justify(GTK_LABEL(second_label), GTK_JUSTIFY_LEFT);
         gtk_box_append(GTK_BOX(horizontal_box), final_label);
         gtk_frame_set_child(GTK_FRAME(frame_monitors[i]), horizontal_box);
         gtk_box_append(GTK_BOX(box), frame_monitors[i]);
@@ -416,6 +416,14 @@ GtkWidget *get_diplays_box() {
         // Free string memory
         free(monitor_first_line);
     }
+    GtkWidget *button_refresh = gtk_button_new_with_label("Refresh monitors list");
+    gtk_widget_set_margin_start(button_refresh, 10);
+    gtk_widget_set_margin_end(button_refresh, 10);
+    gtk_widget_set_margin_bottom(button_refresh, 7);
+    gtk_widget_set_margin_top(button_refresh, 5);
+    g_signal_connect(button_refresh, "clicked", G_CALLBACK(refresh_display_list), GTK_WINDOW(user_data));
+    gtk_box_append(GTK_BOX(box), button_refresh);
+
     return box;
 }
 
@@ -544,11 +552,11 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_hexpand(notes_scrolled_window, TRUE);
 
     // To set the right paned widget with next slides and notes
-    GtkWidget *notes_display_notebook = gtk_notebook_new();
+    notes_display_notebook = gtk_notebook_new();
     GtkWidget *notebook_notes_label = gtk_label_new("Notes");
     GtkWidget *notebook_displays_label = gtk_label_new("Displays");
     gtk_notebook_append_page(GTK_NOTEBOOK(notes_display_notebook), notes_scrolled_window, notebook_notes_label);
-    gtk_notebook_append_page(GTK_NOTEBOOK(notes_display_notebook), get_diplays_box(), notebook_displays_label);
+    gtk_notebook_append_page(GTK_NOTEBOOK(notes_display_notebook), get_diplays_box(window), notebook_displays_label);
     GtkWidget *box_PDF_next_page = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_append(GTK_BOX(box_PDF_next_page), next_slide_label);
     gtk_box_append(GTK_BOX(box_PDF_next_page), next_page_drawing_area);
