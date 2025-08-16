@@ -368,11 +368,6 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_start(next_slide_label, 6);
     // gtk_widget_set_margin_bottom(next_slide_label, 3);
 
-    // Create notes label
-    // GtkWidget *notes_slide_label = gtk_label_new("Notes");
-    // gtk_widget_set_halign(notes_slide_label, GTK_ALIGN_START);
-    // gtk_widget_set_margin_start(notes_slide_label, 6);
-
     // Set next slide font
     PangoAttrList *attrlist = pango_attr_list_new();
     PangoFontDescription *font_desc = pango_font_description_new();
@@ -474,7 +469,8 @@ void on_activate(GtkApplication *app, gpointer user_data) {
 
     // The following is awkward (to set the size of the drawing areas)
     gtk_drawing_area_set_content_width(GTK_DRAWING_AREA(next_page_drawing_area), 300); // Setting the width of the next drawing area
-    gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(next_page_drawing_area), 2); // Setting the width of the next drawing area
+    // gtk_drawing_area_set_content_height(GTK_DRAWING_AREA(next_page_drawing_area), 400); // Setting the width of the next drawing area
+    gtk_widget_set_hexpand(notes_scrolled_window, TRUE);
 
     GtkWidget *box_PDF_next_page = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_box_append(GTK_BOX(box_PDF_next_page), next_slide_label);
@@ -497,9 +493,6 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_box_append(GTK_BOX(box_current_page), infos_center_box);
     gtk_box_append(GTK_BOX(box_current_page), current_page_drawing_area);
     gtk_box_append(GTK_BOX(box_next_page), next_paned);
-    // gtk_box_append(GTK_BOX(box_next_page), next_slide_label);
-    // gtk_box_append(GTK_BOX(box_next_page), next_page_drawing_area);
-    // gtk_box_append(GTK_BOX(box_next_page), notes_scrolled_window);
     GtkWidget *frame_current_page = gtk_frame_new(NULL);
     gtk_frame_set_child(GTK_FRAME(frame_current_page), box_current_page);
     GtkWidget *frame_next_page = gtk_frame_new(NULL);
