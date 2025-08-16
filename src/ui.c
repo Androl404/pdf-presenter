@@ -169,6 +169,14 @@ static void end_presentation_action([[gnu::unused]]GSimpleAction *action, [[gnu:
     finish_presentation_action(gtk_application_get_window_by_id(app, data_presentation.window_presentation_id), user_data);
 }
 
+static void notes_bigger_button_action([[gnu::unused]]GtkButton *self, gpointer user_data) {
+    notes_bigger_action(NULL, NULL, user_data);
+}
+
+static void notes_smaller_button_action([[gnu::unused]]GtkButton *self, gpointer user_data) {
+    notes_smaller_action(NULL, NULL, user_data);
+}
+
 void notes_bigger_action([[gnu::unused]] GSimpleAction *action, [[gnu::unused]] GVariant *parameter, [[gnu::unused]] gpointer user_data) {
     PangoAttrList *attrlist = pango_attr_list_new();
     PangoFontDescription* font_description_notes = pango_font_description_new();
@@ -538,6 +546,20 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     GtkWidget *button_next = gtk_button_new_with_label("Next");
     g_signal_connect(button_next, "clicked", G_CALLBACK(next_PDF_page), window);
 
+    // Create font smaller button and callback
+    GtkWidget *button_font_smaller = gtk_button_new_from_icon_name("format-text-direction-rtl-symbolic");
+    g_signal_connect(button_font_smaller, "clicked", G_CALLBACK(notes_smaller_button_action), window);
+
+    // Create font bigger and callback
+    GtkWidget *button_font_bigger = gtk_button_new_from_icon_name("format-text-direction-ltr-symbolic");
+    g_signal_connect(button_font_bigger, "clicked", G_CALLBACK(notes_bigger_button_action), window);
+
+    // Put next, font smaller and font bigger in box
+    GtkWidget *end_widget_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+    gtk_box_append(GTK_BOX(end_widget_box), button_next);
+    gtk_box_append(GTK_BOX(end_widget_box), button_font_smaller);
+    gtk_box_append(GTK_BOX(end_widget_box), button_font_bigger);
+
     // Create slides center box
     GtkWidget *slides_buttons_box = gtk_center_box_new();
     gtk_widget_set_margin_start(slides_buttons_box, 15);
@@ -548,7 +570,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     // Set widgets for slides center box
     gtk_center_box_set_start_widget(GTK_CENTER_BOX(slides_buttons_box), button_prev);
     gtk_center_box_set_center_widget(GTK_CENTER_BOX(slides_buttons_box), state_label);
-    gtk_center_box_set_end_widget(GTK_CENTER_BOX(slides_buttons_box), button_next);
+    gtk_center_box_set_end_widget(GTK_CENTER_BOX(slides_buttons_box), end_widget_box);
 
     // Date time label creation & update
     datetime_label = gtk_label_new("");
