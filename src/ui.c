@@ -124,7 +124,6 @@ static void create_presentation_window([[gnu::unused]]GSimpleAction *action, [[g
 
     GdkDisplay* default_display = gdk_display_get_default(); // Get display, more at a higher level, like the window manager
     GListModel *monitors_list = gdk_display_get_monitors(default_display); // Get a list of all of the actuals monitor contained by that display
-    guint monitor_number = g_list_model_get_n_items(monitors_list); // Get the number of monitors
     if (presentation_monitor < g_list_model_get_n_items(monitors_list)) {
         gtk_window_fullscreen_on_monitor(GTK_WINDOW(window), GDK_MONITOR(g_list_model_get_object(monitors_list, presentation_monitor)));
     } else {
