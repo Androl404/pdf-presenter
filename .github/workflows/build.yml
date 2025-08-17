@@ -15,7 +15,7 @@ jobs:
 
         strategy:
             matrix:
-                os: [ubuntu-24.04, ubuntu-22.04]
+                os: [ubuntu-22.04]
 
         steps:
             - uses: actions/checkout@main
@@ -25,3 +25,25 @@ jobs:
               run: sudo apt install -y libgtk-4-dev libpoppler-dev libpoppler-glib-dev
             - name: Build Pdf-Presenter
               run: ./build.sh
+
+            # Upload the complete distribution
+            - name: Upload distribution
+              uses: actions/upload-artifact@v4
+              with:
+                name: pdf-presenter-${{ github.ref_name }}-ubuntu-24-04
+                path: build/
+                retention-days: 30
+
+            # Upload build metadata
+            - name: Create build info
+              run: |
+                echo "Build Date: $(date)" > build-info.txt
+                echo "Commit: ${{ github.sha }}" >> build-info.txt
+                echo "Tag: ${{ github.ref_name }}" >> build-info.txt
+                echo "Runner: ${{ runner.os }}" >> build-info.txt
+
+            - name: Upload build info
+              uses: actions/upload-artifact@v4
+              with:
+                name: build-info-${{ github.ref_name }}
+                path: build-info.txt
