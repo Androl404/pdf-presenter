@@ -506,7 +506,12 @@ gboolean sync_datetime_label([[gnu::unused]]gpointer user_data) {
         } else {
             seconds = presentation_time_difference;
         }
+#ifdef WIN32
+        sprintf(chronometer_str, "Chronometer: %02lld:%02lld:%02lld", hours, minutes, seconds);
+#endif
+#ifndef WIN32
         sprintf(chronometer_str, "Chronometer: %02ld:%02ld:%02ld", hours, minutes, seconds);
+#endif
         gtk_label_set_label(GTK_LABEL(chrono_label), chronometer_str);
     }
     return TRUE;
