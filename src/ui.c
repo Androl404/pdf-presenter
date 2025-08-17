@@ -242,7 +242,7 @@ void show_shortcuts([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVarian
                                        NULL);
     GtkWidget *shortcut3 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
                                        "title", "End presentation",
-                                       "accelerator", "q",
+                                       "accelerator", "q Escape",
                                        "visible", TRUE,
                                        NULL);
     GtkWidget *shortcut4 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,

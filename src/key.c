@@ -67,6 +67,11 @@ gboolean on_key_pressed([[gnu::unused]]GtkEventControllerKey *controller, guint 
         custom_PDF_page(pdf_data.total_pages - 1);
         return TRUE;
 
+    case GDK_KEY_Escape:
+        if (data_presentation.in_presentation)
+            finish_presentation_action(GTK_WINDOW(user_data), user_data);
+        return TRUE;
+
     case GDK_KEY_q:
     case GDK_KEY_Q:
         if (data_presentation.in_presentation) {
