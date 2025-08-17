@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "main.h"
 #include "pdf.h"
 #include "ui.h"
 #include "notes.h"

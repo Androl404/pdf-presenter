@@ -581,13 +581,39 @@ GtkWidget *get_diplays_box(gpointer user_data) {
         const gint width = geometry.width;
         const gint height = geometry.height;
 
+        gint description_len = 0;
+        gint manufacturer_len = 0;
+        gint connector_len = 0;
+        gboolean description_include = false;
+        gboolean manufacturer_include = false;
+        gboolean connector_include = false;
+
         // Construct first line for display
-        gchar *monitor_first_line = malloc(strlen(monitor_description) + strlen(monitor_manufacturer) + strlen(monitor_connector) + 4 + 1);
-        strcpy(monitor_first_line, monitor_description);
-        strcat(monitor_first_line, ", ");
-        strcat(monitor_first_line, monitor_manufacturer);
-        strcat(monitor_first_line, ", ");
-        strcat(monitor_first_line, monitor_connector);
+        if (!(monitor_description == NULL)) {
+            description_len = strlen(monitor_description);
+            description_include = true;
+        }
+        if (!(monitor_manufacturer == NULL)) {
+            manufacturer_len = strlen(monitor_manufacturer);
+            manufacturer_include = true;
+        }
+        if (!(monitor_connector == NULL)) {
+            connector_len = strlen(monitor_connector);
+            connector_include = true;
+        }
+
+        gchar *monitor_first_line = malloc(connector_len + manufacturer_len + description_len + 4 + 1);
+        if (description_include) {
+            strcpy(monitor_first_line, monitor_description);
+        }
+        if (manufacturer_include) {
+            strcat(monitor_first_line, ", ");
+            strcat(monitor_first_line, monitor_manufacturer);
+        }
+        if (connector_include) {
+            strcat(monitor_first_line, ", ");
+            strcat(monitor_first_line, monitor_connector);
+        }
 
         // Construct first line for display
         gchar monitor_final_line[strlen(monitor_first_line) + 42]; // One caracter more
