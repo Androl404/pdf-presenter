@@ -698,6 +698,11 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_window_set_title(GTK_WINDOW(window), "PDF Presenter");
     gtk_window_set_default_size(GTK_WINDOW(window), 800, 600);
 
+#ifdef WIN32
+    // Set icon for Windows taskbar
+    gtk_window_set_icon_name(GTK_WINDOW(window), "video-display");
+#endif
+
     // Create drawing area
     current_page_drawing_area = gtk_drawing_area_new();
     next_page_drawing_area = gtk_drawing_area_new();
