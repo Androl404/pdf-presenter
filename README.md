@@ -1,5 +1,7 @@
 # PDF Presenter
 
+![PDF Presenter logo](assets/logo_full.png)
+
 This tool purpose is to replicate the *Presenter Mode* of MS PowerPoint for PDF files, and especially for LaTeX presentation.
 
 ## About this tool
