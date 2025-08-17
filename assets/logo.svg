@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="297mm"
+   height="210mm"
+   viewBox="0 0 297 210"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="logo.svg"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   inkscape:export-filename="logo.png"
+   inkscape:export-xdpi="272.04199"
+   inkscape:export-ydpi="272.04199"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.6440867"
+     inkscape:cx="320.60901"
+     inkscape:cy="236.76937"
+     inkscape:window-width="2560"
+     inkscape:window-height="1029"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer2" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline"
+     transform="translate(2.0539419,43.543568)">
+    <rect
+       style="fill:#fcd9d9;fill-opacity:1;stroke-width:0.345195;stroke-dasharray:none;paint-order:normal"
+       id="rect4"
+       width="154.51433"
+       height="36.902576"
+       x="83.47258"
+       y="52.050175" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.175px;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.265;stroke-dasharray:none"
+       x="91.117058"
+       y="81.056572"
+       id="text1"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:29.9861px;font-family:Sans;-inkscape-font-specification:'Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1;stroke-width:0.265;stroke-dasharray:none"
+         x="91.117058"
+         y="81.056572">Presenter</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Calque 2"
+     style="display:inline">
+    <rect
+       style="fill:#e40000;fill-opacity:1;stroke-width:0.49371;stroke-dasharray:none;paint-order:normal"
+       id="rect3"
+       width="87.819275"
+       height="40.546753"
+       x="53.304985"
+       y="60.125301" />
+    <text
+       xml:space="preserve"
+       style="font-weight:bold;font-size:35.2777px;font-family:Inter, system-ui, '-apple-system', 'Segoe UI', Roboto, Arial, sans-serif;-inkscape-font-specification:'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif, Bold';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#000000;fill-opacity:1;stroke-width:0.365001;stroke-dasharray:none;paint-order:normal"
+       x="63.409698"
+       y="92.749321"
+       id="text3"
+       inkscape:export-filename="logo_pdf.png"
+       inkscape:export-xdpi="578.46063"
+       inkscape:export-ydpi="578.46063"><tspan
+         sodipodi:role="line"
+         id="tspan3"
+         style="fill:#ffffff;fill-opacity:1;stroke-width:0.365"
+         x="63.409698"
+         y="92.749321">PDF</tspan></text>
+  </g>
+</svg>
