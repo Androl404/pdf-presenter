@@ -372,7 +372,7 @@ static void about_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GV
 
     GtkWidget *dialog = gtk_about_dialog_new();
     gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "PDF Presenter");
-    gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), "0.1");
+    gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), PDF_PRESENTER_VERSION);
     gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "A simple PDF presenter using GTK4 and Poppler");
     gtk_about_dialog_set_authors(GTK_ABOUT_DIALOG(dialog), authors);
     gtk_about_dialog_set_artists(GTK_ABOUT_DIALOG(dialog), authors);
