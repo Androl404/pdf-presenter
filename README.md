@@ -96,6 +96,8 @@ After the installation has succeeded, you must add the following folder `C:\msys
 
 Any contribution is welcome. Please file a Pull Request describing the changes you want to merge. This project tries to follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) convention, although we are quite flexible with the commits message, while it does its best to describe the change which is made.
 
+This project also uses [semantic versioning](https://semver.org/).
+
 ## Licence
 
 See the [LICENCE](./LICENSE) file. In short, this project is licensed under the MIT license.
