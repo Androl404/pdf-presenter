@@ -13,7 +13,7 @@ typedef struct {
 extern notes_data data_notes;
 
 void open_notes_action(GSimpleAction *action, GVariant *parameter, gpointer user_dat);
-void load_notes_file(const char *filepath);
+void load_notes_file(const gchar *filepath);
 void get_note_file_extension(void);
 gboolean defer_notes_loading(int argc, char **argv);
 void load_defered_notes(void);

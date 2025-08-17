@@ -10,8 +10,7 @@
 #include "ui.h"
 #include "notes.h"
 
-
-char *pdf_to_load = NULL;
+gchar *pdf_to_load = NULL;
 
 // This function verifies if there is a PDF from command line argument
 gboolean defer_pdf_loading(int argc, char **argv) {
@@ -29,12 +28,12 @@ void load_defered_pdf(void) {
         load_PDF_file(pdf_to_load);
 }
 
-void load_PDF_file(const char* path) {
+void load_PDF_file(const gchar* path) {
     // Load PDF document
     GError *error = NULL;
     pdf_data.absolute_PDF_path = g_string_new(NULL);
-    char* absolute_PDF_path_temp = malloc((PATH_MAX + 1) * sizeof(char));
-    char *uri = g_filename_to_uri(realpath(path, absolute_PDF_path_temp), NULL, &error);
+    gchar* absolute_PDF_path_temp = malloc((PATH_MAX + 1) * sizeof(gchar));
+    gchar *uri = g_filename_to_uri(realpath(path, absolute_PDF_path_temp), NULL, &error);
     pdf_data.absolute_PDF_path = g_string_append(pdf_data.absolute_PDF_path, absolute_PDF_path_temp);
     free(absolute_PDF_path_temp);
 

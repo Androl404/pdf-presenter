@@ -8,7 +8,7 @@
 #include "key.h"
 #include "notes.h"
 
-char *notes_to_load = NULL;
+gchar *notes_to_load = NULL;
 notes_data data_notes = {0};
 
 // File open callback for GtkFileDialog
@@ -20,7 +20,7 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, [[gnu:
     GFile *file = gtk_file_dialog_open_finish(dialog, res, &error);
 
     if (file != NULL) {
-        char *filename = g_file_get_path(file);
+        gchar *filename = g_file_get_path(file);
         g_print("Selected file: %s\n", filename);
 
         // What we actually do with the notes files
@@ -79,12 +79,12 @@ void open_notes_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVar
     g_object_unref(filters);
 }
 
-void load_notes_file(const char *filepath) {
+void load_notes_file(const gchar *filepath) {
     // Load notes document
     GError *error = NULL;
     data_notes.notes_absolute_path = g_string_new(NULL);
-    char* absolute_notes_path_temp = malloc((PATH_MAX + 1) * sizeof(char));
-    char *uri = g_filename_to_uri(realpath(filepath, absolute_notes_path_temp), NULL, &error);
+    gchar* absolute_notes_path_temp = malloc((PATH_MAX + 1) * sizeof(gchar));
+    gchar *uri = g_filename_to_uri(realpath(filepath, absolute_notes_path_temp), NULL, &error);
     data_notes.notes_absolute_path = g_string_append(data_notes.notes_absolute_path, absolute_notes_path_temp);
     free(absolute_notes_path_temp);
 

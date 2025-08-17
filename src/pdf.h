@@ -7,14 +7,14 @@ typedef struct {
 
 extern PopplerDocument *document;
 extern PDF_data pdf_data;
-// extern char absolute_PDF_path[PATH_MAX + 1]; // Stores the absolute file path of the PDF file
+// extern gchar absolute_PDF_path[PATH_MAX + 1]; // Stores the absolute file path of the PDF file
 
 gboolean defer_pdf_loading(int argc, char **argv);
 void load_defered_pdf(void);
 void draw_current_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data);
 void draw_next_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data);
 void custom_PDF_page(const gsize PDF_page);
-void load_PDF_file(const char* path);
+void load_PDF_file(const gchar* path);
 void next_PDF_page(void);
 void previous_PDF_page(void);
 void queue_all_drawing_areas();

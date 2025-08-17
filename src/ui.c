@@ -37,7 +37,7 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, [[gnu:
     GFile *file = gtk_file_dialog_open_finish(dialog, res, &error);
 
     if (file != NULL) {
-        char *filename = g_file_get_path(file);
+        gchar *filename = g_file_get_path(file);
         g_print("Selected file: %s\n", filename);
 
         // Call your load_pdf function here
@@ -204,7 +204,7 @@ static gboolean close_all_windows(GtkWindow *self, gpointer user_data) {
 
 static void about_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
-    const char* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>", NULL};
+    const gchar* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>", NULL};
 
     GtkWidget *dialog = gtk_about_dialog_new();
     gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "PDF Presenter");
@@ -305,7 +305,7 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
 }
 
 void update_slides_label() {
-    char label_string[(10 + (2*(pdf_data.total_pages / 10) + 1)) * sizeof(char)];
+    gchar label_string[(10 + (2*(pdf_data.total_pages / 10) + 1)) * sizeof(char)];
     sprintf(label_string, "Slide %zu of %zu", pdf_data.current_page + 1, pdf_data.total_pages);
     if (pdf_data.pdf_loaded) {
         gtk_label_set_label(GTK_LABEL(state_label), label_string);
@@ -320,7 +320,7 @@ void update_level_bar() {
 
 gboolean sync_datetime_label([[gnu::unused]]gpointer user_data) {
     GDateTime *time = g_date_time_new_now_local();
-    char local_time_str[34], chronometer_str[42];
+    gchar local_time_str[34], chronometer_str[42];
     gint64 hours = 0, minutes = 0, seconds = 0;
     sprintf(local_time_str, "Local time: %04d/%02d/%02d %02d:%02d:%02d", g_date_time_get_year(time), g_date_time_get_month(time), g_date_time_get_day_of_month(time), g_date_time_get_hour(time), g_date_time_get_minute(time), g_date_time_get_second(time));
     gtk_label_set_label(GTK_LABEL(datetime_label), local_time_str);
@@ -403,17 +403,17 @@ GtkWidget *get_diplays_box(gpointer user_data) {
     for (guint i = 0; i < monitor_number; i++) {
         GdkRectangle geometry = {0};
         gdk_monitor_get_geometry(GDK_MONITOR(g_list_model_get_object(monitors_list, i)), &geometry);
-        const char *monitor_description = gdk_monitor_get_model(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
-        const char *monitor_manufacturer = gdk_monitor_get_manufacturer(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
-        const char *monitor_connector = gdk_monitor_get_connector(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
-        const int refresh_rate = gdk_monitor_get_refresh_rate(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
-        const int x = geometry.x;
-        const int y = geometry.y;
-        const int width = geometry.width;
-        const int height = geometry.height;
+        const gchar *monitor_description = gdk_monitor_get_model(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
+        const gchar *monitor_manufacturer = gdk_monitor_get_manufacturer(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
+        const gchar *monitor_connector = gdk_monitor_get_connector(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
+        const gint refresh_rate = gdk_monitor_get_refresh_rate(GDK_MONITOR(g_list_model_get_object(monitors_list, i)));
+        const gint x = geometry.x;
+        const gint y = geometry.y;
+        const gint width = geometry.width;
+        const gint height = geometry.height;
 
         // Construct first line for display
-        char *monitor_first_line = malloc(strlen(monitor_description) + strlen(monitor_manufacturer) + strlen(monitor_connector) + 4 + 1);
+        gchar *monitor_first_line = malloc(strlen(monitor_description) + strlen(monitor_manufacturer) + strlen(monitor_connector) + 4 + 1);
         strcpy(monitor_first_line, monitor_description);
         strcat(monitor_first_line, ", ");
         strcat(monitor_first_line, monitor_manufacturer);
@@ -421,7 +421,7 @@ GtkWidget *get_diplays_box(gpointer user_data) {
         strcat(monitor_first_line, monitor_connector);
 
         // Construct first line for display
-        char monitor_final_line[strlen(monitor_first_line) + 42]; // One caracter more
+        gchar monitor_final_line[strlen(monitor_first_line) + 42]; // One caracter more
         sprintf(monitor_final_line, "%s\n%dx%d, %dHz at (%d,%d)", monitor_first_line, width, height, refresh_rate/1000, x, y);
 
         // Setting the frame
