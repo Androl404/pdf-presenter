@@ -2,6 +2,7 @@
 #include <poppler.h>
 #include <stdio.h>
 
+#include "gdk/gdk.h"
 #include "main.h"
 #include "ui.h"
 #include "pdf.h"
@@ -368,7 +369,13 @@ void show_shortcuts([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVarian
 
 static void about_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
-    const gchar* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>", NULL};
+    const gchar *authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>", NULL};
+
+    // Load the logo from GResource
+    GdkTexture *logo_texture = gdk_texture_new_from_resource("/org/github/pdf-presenter/assets/logo_full.png");
+    if (!logo_texture) {
+        g_warning("Failed to load logo from resource");
+    }
 
     GtkWidget *dialog = gtk_about_dialog_new();
     gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "PDF Presenter");
@@ -379,7 +386,14 @@ static void about_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GV
     gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog), GTK_LICENSE_MIT_X11);
     gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://github.com/Androl404/pdf-presenter");
     gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Repository on GitHub");
+    // gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog), "video-display");
     // gtk_about_dialog_set_wrap_license(GTK_ABOUT_DIALOG(dialog), TRUE);
+
+    // Set the logo if loaded successfully
+    if (logo_texture) {
+        gtk_about_dialog_set_logo(GTK_ABOUT_DIALOG(dialog), GDK_PAINTABLE(logo_texture));
+        g_object_unref(logo_texture);  // Release our reference
+    }
 
     gtk_window_set_transient_for(GTK_WINDOW(dialog), window);
     gtk_window_present(GTK_WINDOW(dialog));

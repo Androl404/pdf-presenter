@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/github/pdf-presenter/">
+    <file compressed="true">assets/logo_full.png</file>
+    <!-- More ressource example below-->
+    <!-- <file compressed="true">dialog.ui</file> -->
+    <!-- <file preprocess="xml-stripblanks">menumarkup.xml</file> -->
+    <!-- <file alias="example.css">data/example.css</file> -->
+    <!-- <file>icon.svg</file> -->
+    <!-- <file>style.css</file> -->
+    <!-- Reference: https://docs.gtk.org/gio/struct.Resource.html -->
+  </gresource>
+</gresources>
