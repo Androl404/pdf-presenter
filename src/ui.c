@@ -202,6 +202,170 @@ static gboolean close_all_windows(GtkWindow *self, gpointer user_data) {
     exit(0);
 }
 
+void show_shortcuts([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
+    GtkWindow *parent = GTK_WINDOW(user_data);
+    GtkWidget *shortcuts_window;
+
+    // Create the shortcuts window
+    shortcuts_window = g_object_new(GTK_TYPE_SHORTCUTS_WINDOW,
+                                   "transient-for", parent,
+                                   "modal", TRUE,
+                                   NULL);
+
+    // Create shortcuts sections
+    GtkWidget *section1 = g_object_new(GTK_TYPE_SHORTCUTS_SECTION,
+                                      "title", "General",
+                                      "visible", TRUE,
+                                      NULL);
+
+    // GtkWidget *section2 = g_object_new(GTK_TYPE_SHORTCUTS_SECTION,
+                                      // "title", "Editing",
+                                      // "visible", TRUE,
+                                      // NULL);
+
+    // Create shortcuts groups for section 1
+    GtkWidget *group1 = g_object_new(GTK_TYPE_SHORTCUTS_GROUP,
+                                    "title", "Application",
+                                    "visible", TRUE,
+                                    NULL);
+
+    // Create individual shortcuts for group 1
+    GtkWidget *shortcut1 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Open PDF file",
+                                       "accelerator", "<Control>o",
+                                       "visible", TRUE,
+                                       NULL);
+    GtkWidget *shortcut2 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Open notes file",
+                                       "accelerator", "<Control><Shift>o",
+                                       "visible", TRUE,
+                                       NULL);
+    GtkWidget *shortcut3 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "End presentation",
+                                       "accelerator", "q",
+                                       "visible", TRUE,
+                                       NULL);
+    GtkWidget *shortcut4 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Quit Application",
+                                       "accelerator", "q",
+                                       "visible", TRUE,
+                                       NULL);
+
+    // Add shortcuts to group 1
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group1), GTK_SHORTCUTS_SHORTCUT(shortcut1));
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group1), GTK_SHORTCUTS_SHORTCUT(shortcut2));
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group1), GTK_SHORTCUTS_SHORTCUT(shortcut3));
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group1), GTK_SHORTCUTS_SHORTCUT(shortcut4));
+
+    // Create shortcuts groups for section 2
+    GtkWidget *group2 = g_object_new(GTK_TYPE_SHORTCUTS_GROUP,
+                                    "title", "PDF operations",
+                                    "visible", TRUE,
+                                    NULL);
+
+    // Create shortcuts for group 2
+    GtkWidget *shortcut5 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Previous slide",
+                                       "accelerator", "p b j h <Shift>space <Shift>Return Left Down",
+                                       "visible", TRUE,
+                                       NULL);
+    GtkWidget *shortcut6 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Next slide",
+                                       "accelerator", "n f k l space Return Up Right",
+                                       "visible", TRUE,
+                                       NULL);
+    GtkWidget *shortcut7 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Go to first slide",
+                                       "accelerator", "g",
+                                       "visible", TRUE,
+                                       NULL);
+    GtkWidget *shortcut8 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Go to last slide",
+                                       "accelerator", "<Shift>g",
+                                       "visible", TRUE,
+                                       NULL);
+
+    // Add shortcuts to group 2
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group2), GTK_SHORTCUTS_SHORTCUT(shortcut5));
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group2), GTK_SHORTCUTS_SHORTCUT(shortcut6));
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group2), GTK_SHORTCUTS_SHORTCUT(shortcut7));
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group2), GTK_SHORTCUTS_SHORTCUT(shortcut8));
+
+    // Create shortcuts groups for section 3
+    GtkWidget *group3 = g_object_new(GTK_TYPE_SHORTCUTS_GROUP,
+                                    "title", "Presentation",
+                                    "visible", TRUE,
+                                    NULL);
+
+    // Create shortcuts for group 2
+    GtkWidget *shortcut9 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Start presentation at first slide",
+                                       "accelerator", "F5",
+                                       "visible", TRUE,
+                                       NULL);
+    GtkWidget *shortcut10 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Start presentation at current slide",
+                                       "accelerator", "<Shift>F5",
+                                       "visible", TRUE,
+                                       NULL);
+
+    // Add shortcuts to group 3
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group3), GTK_SHORTCUTS_SHORTCUT(shortcut9));
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group3), GTK_SHORTCUTS_SHORTCUT(shortcut10));
+
+    // Create shortcuts groups for section 4
+    GtkWidget *group4 = g_object_new(GTK_TYPE_SHORTCUTS_GROUP,
+                                    "title", "Notes",
+                                    "visible", TRUE,
+                                    NULL);
+
+    // Create shortcuts for group 2
+    GtkWidget *shortcut11 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Decrease note's font size",
+                                       "accelerator", "minus",
+                                       "visible", TRUE,
+                                       NULL);
+    GtkWidget *shortcut12 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Increase note's font size",
+                                       "accelerator", "plus",
+                                       "visible", TRUE,
+                                       NULL);
+
+    // Add shortcuts to group 4
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group4), GTK_SHORTCUTS_SHORTCUT(shortcut11));
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group4), GTK_SHORTCUTS_SHORTCUT(shortcut12));
+
+    // Create shortcuts groups for section 5
+    GtkWidget *group5 = g_object_new(GTK_TYPE_SHORTCUTS_GROUP,
+                                    "title", "Help",
+                                    "visible", TRUE,
+                                    NULL);
+
+    // Create shortcuts for group 2
+    GtkWidget *shortcut13 = g_object_new(GTK_TYPE_SHORTCUTS_SHORTCUT,
+                                       "title", "Show the keyboard shortcuts",
+                                       "accelerator", "<Control>comma",
+                                       "visible", TRUE,
+                                       NULL);
+
+    // Add shortcuts to group 4
+    gtk_shortcuts_group_add_shortcut(GTK_SHORTCUTS_GROUP(group5), GTK_SHORTCUTS_SHORTCUT(shortcut13));
+
+    // Add groups to sections
+    gtk_shortcuts_section_add_group(GTK_SHORTCUTS_SECTION(section1), GTK_SHORTCUTS_GROUP(group1));
+    gtk_shortcuts_section_add_group(GTK_SHORTCUTS_SECTION(section1), GTK_SHORTCUTS_GROUP(group2));
+    gtk_shortcuts_section_add_group(GTK_SHORTCUTS_SECTION(section1), GTK_SHORTCUTS_GROUP(group3));
+    gtk_shortcuts_section_add_group(GTK_SHORTCUTS_SECTION(section1), GTK_SHORTCUTS_GROUP(group4));
+    gtk_shortcuts_section_add_group(GTK_SHORTCUTS_SECTION(section1), GTK_SHORTCUTS_GROUP(group5));
+
+    // Add sections to shortcuts window
+    gtk_shortcuts_window_add_section(GTK_SHORTCUTS_WINDOW(shortcuts_window), GTK_SHORTCUTS_SECTION(section1));
+    // gtk_shortcuts_window_add_section(GTK_SHORTCUTS_WINDOW(shortcuts_window), GTK_SHORTCUTS_SECTION(section2));
+
+    // Present the shortcuts window
+    gtk_window_present(GTK_WINDOW(shortcuts_window));
+}
+
 static void about_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
     const gchar* authors[] = {"Andrei ZEUCIANU <benjaminpotron@gmail.com>", NULL};
@@ -261,6 +425,10 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
     g_signal_connect(notes_smaller_act, "activate", G_CALLBACK(notes_smaller_action), window);
     g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(notes_smaller_act));
 
+    GSimpleAction *show_shortcuts_act = g_simple_action_new("keyshortcuts", NULL);
+    g_signal_connect(show_shortcuts_act, "activate", G_CALLBACK(show_shortcuts), window);
+    g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(show_shortcuts_act));
+
     GSimpleAction *about_act = g_simple_action_new("about", NULL);
     g_signal_connect(about_act, "activate", G_CALLBACK(about_action), window);
     g_action_map_add_action(G_ACTION_MAP(action_group), G_ACTION(about_act));
@@ -290,6 +458,7 @@ static GtkWidget* create_menu_bar(GtkWindow *window) {
 
     // Help menu
     GMenu *help_menu = g_menu_new();
+    g_menu_append(help_menu, "_Keyboard shortcuts", "win.keyshortcuts");
     g_menu_append(help_menu, "_About", "win.about");
 
     // Add submenus to main menu

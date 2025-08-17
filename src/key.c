@@ -93,6 +93,12 @@ gboolean on_key_pressed([[gnu::unused]]GtkEventControllerKey *controller, guint 
         notes_bigger_action(NULL, NULL, user_data);
         return TRUE;
 
+    case GDK_KEY_comma:
+        if (state & GDK_CONTROL_MASK) {
+            show_shortcuts(NULL, NULL, user_data);
+        }
+        return TRUE;
+
     default:
         // Let other keys pass through
         return FALSE;
