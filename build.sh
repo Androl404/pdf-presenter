@@ -16,7 +16,7 @@ mkdir -p build
 COMPILER="cc" # gcc
 CFLAGS="$(pkg-config --cflags gtk4 poppler-glib)"
 CLIBS="$(pkg-config --libs gtk4 poppler-glib)"
-CWARNINGS="-Wall -Wextra"
+CWARNINGS="-Wall -Wextra -Wno-deprecated-declarations"
 DEBUG="-g"
 
 $COMPILER $DEBUG $CWARNINGS $CFLAGS -o ./build/pdf-presenter src/*.c $CLIBS
