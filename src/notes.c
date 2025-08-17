@@ -40,7 +40,7 @@ static void file_open_callback(GObject *source_object, GAsyncResult *res, [[gnu:
 // Add these action callback functions
 void open_notes_action([[gnu::unused]]GSimpleAction *action, [[gnu::unused]]GVariant *parameter, gpointer user_data) {
     GtkWindow *window = GTK_WINDOW(user_data);
-    g_print("Open action triggered\n");
+    // g_print("Open action triggered\n");
 
     // Create file dialog
     GtkFileDialog *dialog = gtk_file_dialog_new();

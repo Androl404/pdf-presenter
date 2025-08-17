@@ -1,11 +1,11 @@
 #include <gtk/gtk.h>
 #include <poppler.h>
 
-#include "gdk/gdkkeysyms.h"
 #include "main.h"
 #include "pdf.h"
 #include "ui.h"
 #include "key.h"
+#include "notes.h"
 
 // Callback function for key release events
 gboolean on_key_pressed([[gnu::unused]]GtkEventControllerKey *controller, guint keyval, [[gnu::unused]]guint keycode, GdkModifierType state, gpointer user_data) {
@@ -77,8 +77,10 @@ gboolean on_key_pressed([[gnu::unused]]GtkEventControllerKey *controller, guint 
         return TRUE;
 
     case GDK_KEY_o:
-        if (state & GDK_CONTROL_MASK) {
-            // gtk_widget_activate_action(GTK_WIDGET(user_data), "win.open", NULL);
+    case GDK_KEY_O:
+        if ((state & GDK_CONTROL_MASK) && (state & GDK_SHIFT_MASK)) {
+            open_notes_action(NULL, NULL, user_data);
+        } else if (state & GDK_CONTROL_MASK) {
             open_PDF_action(NULL, NULL, user_data);
         }
         return TRUE;
