@@ -144,7 +144,11 @@ We decided to use [RessourceHacker](https://www.angusj.com/resourcehacker/) to s
 
 ## Screenshots
 
-*Will be available soon*
+![Screenshot of PDF Presenter](resources/screenshots/Screenshot From 2025-08-18 16-45-38.png)
+![Screenshot of PDF Presenter](resources/screenshots/Screenshot From 2025-08-18 16-48-50.png)
+![Screenshot of PDF Presenter](resources/screenshots/Screenshot From 2025-08-18 16-50-58.png)
+![Screenshot of PDF Presenter](resources/screenshots/Screenshot From 2025-08-18 16-51-16.png)
+![Screenshot of PDF Presenter](resources/screenshots/Screenshot From 2025-08-18 16-51-34.png)
 
 ## Known bugs
 
