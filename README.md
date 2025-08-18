@@ -132,6 +132,16 @@ References:
 - <https://vidhukant.com/blog/distributing-gtk-app-for-windows/>
 - <https://gist.github.com/albertgoss/a0f38e83d6634e31527c33bb474ae1a7>
 
+#### Binaries icon
+
+On GNU/Linux, the FreeDesktop conventions impose the use of a `.desktop` file in order to set the icon if the application in desktop environment.
+
+On Windows, there are multiple ways to set the executable icon with GTK and Meson. Here are multiple references:
+- <https://discourse.gnome.org/t/gtk4-icons-on-windows/17129/5>
+- <https://stackoverflow.com/questions/64545983/how-do-i-add-an-icon-to-an-iconless-exe-file>
+
+We decided to use [RessourceHacker](https://www.angusj.com/resourcehacker/) to set the icon of our application following the second previous reference. The ICO file available in `resources/assets/logo_pdf_square/logo_pdf_square_256.ico` is used.
+
 ## Screenshots
 
 ## Contributing
