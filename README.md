@@ -88,7 +88,49 @@ After the installation has succeeded, you must add the following folder `C:\msys
 
 ### Pre-built binaries
 
-*Pre-built binaries will be available soon in the [release page](https://github.com/Androl404/pdf-presenter/releases).*
+Pre-built binaries are available in the [release page](https://github.com/Androl404/pdf-presenter/releases). Pre-built binaries for Windows are available as a `zip` archive with PDF Presenter and GTK's binaries.
+
+A pre-built binary is also available for [Ubuntu 24.04](https://ubuntu.com/download/desktop?version=24.04&architecture=amd64&lts=true). This binaries should work on any recent Linux distribution (tested on Debian 13). This binary consists on a single executable file.
+
+#### Binaries on Windows
+
+In order to build and distribute the application from MS Windows, first follow the building instructions for MS Windows. Then, install the Adwaita dependency with:
+
+``` shell
+$ pacman -S mingw-w64-x86_64-libadwaita
+```
+
+Make sure package `mingw-w64-x86_64-gtk4` is installed. Build your project with a custom prefix (e.g. ~/my-gtk-app-prefix). Navigate to this directory such that you have subdirectories 'bin', 'lib', 'share', 'etc'. The executable should be distributed in the 'bin' folder.
+
+The following command copies all dependent DLLs to the current directory:
+
+``` shell
+$ ldd ./bin/pdf-presenter.exe | grep '\/mingw.*\.dll' -o | xargs -I{} cp "{}" ./bin
+```
+
+This ensures that the necessary DLLs are bundled in the application folder so the end user does not need their own installation of msys2. GTK will crash if it cannot load images. GdkPixbuf needs various loaders for different image formats. Dependent DDLs must also be copied.
+
+``` shell
+$ cp -r /mingw64/lib/gdk-pixbuf-2.0 ./lib/gdk-pixbuf-2.0
+$ ldd lib/gdk-pixbuf-2.0/2.10.0/loaders/pixbufloader_svg.dll | grep '\/mingw.*\.dll' -o | xargs -I{} cp "{}" ./bin
+```
+
+We then need to copy over the Adwaita and hicolor icon themes, otherwise GTK will display a fallback 'missing icon' symbol.
+
+``` shell
+$ cp -r /mingw64/share/icons/* ./share/icons/
+```
+
+The relevant settings schemas need to be installed. Copy them over and recompile. You may want to manually inspect the copied over schemas (in case unrelated projects are also copied).
+
+``` shell
+$ cp /mingw64/share/glib-2.0/schemas/* ./share/glib-2.0/schemas/
+$ glib-compile-schemas.exe ./share/glib-2.0/schemas/
+```
+
+References:
+- <https://vidhukant.com/blog/distributing-gtk-app-for-windows/>
+- <https://gist.github.com/albertgoss/a0f38e83d6634e31527c33bb474ae1a7>
 
 ## Screenshots
 
