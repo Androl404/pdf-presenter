@@ -144,15 +144,15 @@ We decided to use [RessourceHacker](https://www.angusj.com/resourcehacker/) to s
 
 ## Screenshots
 
-![Screenshot of PDF Presenter](resources/screenshots/Screenshot From 2025-08-18 16-45-38.png)
+![Screenshot of PDF Presenter](resources/screenshots/Screenshot_From_2025-08-18_16-45-38.png)
 
-![Screenshot of PDF Presenter](resources/screenshots/Screenshot From 2025-08-18 16-48-50.png)
+![Screenshot of PDF Presenter](resources/screenshots/Screenshot_From_2025-08-18_16-48-50.png)
 
-![Screenshot of PDF Presenter](resources/screenshots/Screenshot From 2025-08-18 16-50-58.png)
+![Screenshot of PDF Presenter](resources/screenshots/Screenshot_From_2025-08-18_16-50-58.png)
 
-![Screenshot of PDF Presenter](resources/screenshots/Screenshot From 2025-08-18 16-51-16.png)
+![Screenshot of PDF Presenter](resources/screenshots/Screenshot_From_2025-08-18_16-51-16.png)
 
-![Screenshot of PDF Presenter](resources/screenshots/Screenshot From 2025-08-18 16-51-34.png)
+![Screenshot of PDF Presenter](resources/screenshots/Screenshot_From_2025-08-18_16-51-34.png)
 
 ## Known bugs
 
