@@ -144,6 +144,13 @@ We decided to use [RessourceHacker](https://www.angusj.com/resourcehacker/) to s
 
 ## Screenshots
 
+*Will be available soon*
+
+## Known bugs
+
+- Specifically on the [i3 tiling window manager](https://i3wm.org/), the displays function is not functioning properly, since the presentation popup will go full-screen on the monitor containing the control window, and not on the specified monitors in the "Displays" section.
+- Spawning multiple instances of this application results in a broken behaviour.
+
 ## Contributing
 
 Any contribution is welcome. Please file a Pull Request describing the changes you want to merge. This project tries to follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) convention, although we are quite flexible with the commits message, while it does its best to describe the change which is made.
