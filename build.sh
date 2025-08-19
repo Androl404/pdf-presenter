@@ -13,8 +13,8 @@ fi
 mkdir -p build
 
 cd ./resources/
-    glib-compile-resources --generate-source --target=resources.c --sourcedir=. --generate-source resources.xml
-    glib-compile-resources --generate-header --target=resources.h --sourcedir=. --generate-source resources.xml
+    glib-compile-resources --generate-source --target=resources.c --sourcedir=. resources.xml
+    glib-compile-resources --generate-header --target=resources.h --sourcedir=. resources.xml
 cd ./../
 
 if [ -z ${WINDIR+x} ]; then
