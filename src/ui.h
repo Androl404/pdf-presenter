@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UI_H
+#define UI_H
 
 typedef struct {
     gboolean in_presentation;
@@ -30,3 +31,5 @@ gboolean finish_presentation_action(GtkWindow *self, gpointer user_data);
 gboolean sync_datetime_label(gpointer user_data);
 void update_level_bar(void);
 GtkWidget *get_diplays_box(gpointer user_data);
+
+#endif // UI_H

@@ -1,3 +1,6 @@
+#ifndef NOTES_H
+#define NOTES_H
+
 enum file_extension {
     MARKDOWN_FILE,
     TEXT_FILE,
@@ -18,3 +21,5 @@ void get_note_file_extension(void);
 gboolean defer_notes_loading(int argc, char **argv);
 void load_defered_notes(void);
 void load_slide_notes(const gsize slide);
+
+#endif // NOTES_H

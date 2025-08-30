@@ -1,3 +1,6 @@
+#ifndef PDF_H
+#define PDF_H
+
 typedef struct {
     GString *absolute_PDF_path;
     gboolean pdf_loaded;
@@ -18,3 +21,5 @@ void load_PDF_file(const gchar* path);
 void next_PDF_page(void);
 void previous_PDF_page(void);
 void queue_all_drawing_areas();
+
+#endif // PDF_H
