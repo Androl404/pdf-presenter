@@ -7,6 +7,7 @@
 #include "pdf.h"
 #include "key.h"
 #include "notes.h"
+#include "pointer.h"
 
 GtkWidget *current_page_drawing_area;
 GtkWidget *next_page_drawing_area;
@@ -731,9 +732,26 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_label_set_attributes(GTK_LABEL(notes_label), attrlist_notes);
     // gtk_label_set_attributes(GTK_LABEL(notes_slide_label), attrlist);
 
+    // Create box for pointer switch and previous slide button
+    GtkWidget *pointer_previous_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+
+    // Create label and switch to enable/disable pointer
+    GtkWidget *pointer_label = gtk_label_new("Pointer:");
+    GtkWidget *pointer_switch = gtk_switch_new();
+    g_signal_connect(pointer_switch, "state-set", G_CALLBACK(pointer_switch_callback), window);
+    gtk_box_append(GTK_BOX(pointer_previous_box), pointer_label);
+    gtk_box_append(GTK_BOX(pointer_previous_box), pointer_switch);
+
+    // Add cursor detection for the pointer
+    GtkEventController *gesture_pos = gtk_event_controller_motion_new();
+    gtk_widget_add_controller(current_page_drawing_area, (GtkEventController *)gesture_pos);
+    gtk_event_controller_set_propagation_phase((GtkEventController  *)gesture_pos, GTK_PHASE_CAPTURE);
+    g_signal_connect(gesture_pos, "motion", G_CALLBACK(pointer_motion_event), window);
+
     // Create previous button and callback
     GtkWidget *button_prev = gtk_button_new_with_label("Previous");
     g_signal_connect(button_prev, "clicked", G_CALLBACK(previous_PDF_page), window);
+    gtk_box_append(GTK_BOX(pointer_previous_box), button_prev);
 
     // Slides label creation and initialization
     state_label = gtk_label_new("");
@@ -769,7 +787,7 @@ void on_activate(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_margin_bottom(slides_buttons_box, 7);
 
     // Set widgets for slides center box
-    gtk_center_box_set_start_widget(GTK_CENTER_BOX(slides_buttons_box), button_prev);
+    gtk_center_box_set_start_widget(GTK_CENTER_BOX(slides_buttons_box), pointer_previous_box);
     gtk_center_box_set_center_widget(GTK_CENTER_BOX(slides_buttons_box), state_label);
     gtk_center_box_set_end_widget(GTK_CENTER_BOX(slides_buttons_box), end_widget_box);
 

@@ -10,6 +10,7 @@
 #include "pdf.h"
 #include "ui.h"
 #include "notes.h"
+#include "pointer.h"
 
 gchar *pdf_to_load = NULL;
 
@@ -195,6 +196,22 @@ void draw_current_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int wid
 
     // Render the PDF page
     poppler_page_render(page, cr);
+
+    // If the pointer is activated
+    if (pointer_data.activated) {
+        g_print("Cursor position: %f, %f\n", pointer_data.x, pointer_data.y);
+        // Draw the pointer
+        cairo_pattern_t *linpat = cairo_pattern_create_linear(0, 0, 10, 10);
+        cairo_pattern_add_color_stop_rgb(linpat, 0, 0.8, 0.3, 0.3);
+        cairo_pattern_add_color_stop_rgb(linpat, 1, 0.8, 0.3, 0.3);
+
+        cairo_pattern_t *radpat = cairo_pattern_create_radial(pointer_data.x/2 + 0.5, pointer_data.y/2 + 0.5, 0.25, pointer_data.x/2 + 0.5, pointer_data.y/2 + 0.5, 10);
+        cairo_pattern_add_color_stop_rgba(radpat, 0, 0, 0, 0, 1);
+        cairo_pattern_add_color_stop_rgba(radpat, 0.5, 0, 0, 0, 0);
+
+        cairo_set_source(cr, linpat);
+        cairo_mask(cr, radpat);
+    }
 
     // Restore the previous state
     cairo_restore(cr);
