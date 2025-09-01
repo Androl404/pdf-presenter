@@ -12,6 +12,6 @@ extern Pointer pointer_data;
 
 gboolean pointer_switch_callback(GtkSwitch *self, gboolean state, gpointer user_data);
 void pointer_motion_event(GtkEventController *gesture, gdouble x, gdouble y, gpointer user_data);
-void calculate_drawing_area_positions(gdouble offset_x, gdouble offset_y, gdouble page_width, gdouble page_height);
+void calculate_pointer_positions(gdouble offset_x, gdouble offset_y, gdouble page_width, gdouble page_height);
 
 #endif // POINTER_H

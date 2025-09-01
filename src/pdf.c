@@ -206,7 +206,7 @@ void draw_page(cairo_t *cr, int width, int height, gboolean next_page, gboolean 
     // If the pointer is activated
     if (pointer_data.activated && !next_page) {
         // Get coordinates for current page drawing area
-        calculate_drawing_area_positions(offset_x, offset_y, page_width, page_height);
+        calculate_pointer_positions(offset_x, offset_y, page_width, page_height);
 
         // Draw the pointer
         cairo_pattern_t *linpat = cairo_pattern_create_linear(0, 0, 10, 10);
@@ -215,9 +215,9 @@ void draw_page(cairo_t *cr, int width, int height, gboolean next_page, gboolean 
 
         cairo_pattern_t *radpat;
         if (presentation)
-            radpat = cairo_pattern_create_radial(pointer_data.presentation_page_x + 0.5, pointer_data.presentation_page_y + 0.5, 0.25, pointer_data.presentation_page_x + 0.5, pointer_data.presentation_page_y + 0.5, 10);
+            radpat = cairo_pattern_create_radial(pointer_data.presentation_page_x, pointer_data.presentation_page_y, 0.25, pointer_data.presentation_page_x, pointer_data.presentation_page_y, 10);
         else
-            radpat = cairo_pattern_create_radial(pointer_data.current_page_x + 0.5, pointer_data.current_page_y + 0.5, 0.25, pointer_data.current_page_x + 0.5, pointer_data.current_page_y + 0.5, 10);
+            radpat = cairo_pattern_create_radial(pointer_data.current_page_x, pointer_data.current_page_y, 0.25, pointer_data.current_page_x, pointer_data.current_page_y, 10);
         cairo_pattern_add_color_stop_rgba(radpat, 0, 0, 0, 0, 1);
         cairo_pattern_add_color_stop_rgba(radpat, 0.5, 0, 0, 0, 0);
 
