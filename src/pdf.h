@@ -16,6 +16,7 @@ gboolean defer_pdf_loading(int argc, char **argv);
 void load_defered_pdf(void);
 void draw_current_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data);
 void draw_next_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data);
+void draw_presentation_page(GtkDrawingArea *area, cairo_t *cr, int width, int height, gpointer user_data);
 void custom_PDF_page(const gsize PDF_page);
 void load_PDF_file(const gchar* path);
 void next_PDF_page(void);

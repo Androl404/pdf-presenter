@@ -103,7 +103,7 @@ static void create_presentation_window([[gnu::unused]]GSimpleAction *action, [[g
     gtk_widget_set_hexpand(presentation_drawing_area, TRUE); // Set expansion properties for the drawing area
     gtk_widget_set_vexpand(presentation_drawing_area, TRUE);
 
-    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(presentation_drawing_area), draw_current_page, NULL, NULL);
+    gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(presentation_drawing_area), draw_presentation_page, NULL, NULL);
 
     gtk_window_set_child(GTK_WINDOW(window), presentation_drawing_area);
 

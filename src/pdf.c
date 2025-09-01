@@ -151,13 +151,18 @@ void queue_all_drawing_areas() {
         gtk_widget_queue_draw(presentation_drawing_area);
 }
 
-// This function is called each time the drawing area gets resized
-void draw_current_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int width, int height, [[gnu::unused]]gpointer user_data) {
+void draw_page(cairo_t *cr, int width, int height, gboolean next_page, gboolean presentation) {
     // Verify if document exists
     if (!document) return;
 
     // Create poppler page
-    PopplerPage *page = poppler_document_get_page(document, pdf_data.current_page);
+    PopplerPage *page;
+    if (next_page) {
+        if ((pdf_data.current_page + 1) >= pdf_data.total_pages) return;
+        page = poppler_document_get_page(document, pdf_data.current_page + 1);
+    } else {
+        page = poppler_document_get_page(document, pdf_data.current_page);
+    }
     if (!page) return;
 
     // Get page dimensions
@@ -199,7 +204,7 @@ void draw_current_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int wid
     poppler_page_render(page, cr);
 
     // If the pointer is activated
-    if (pointer_data.activated) {
+    if (pointer_data.activated && !next_page) {
         // Get coordinates for current page drawing area
         calculate_drawing_area_positions(offset_x, offset_y, page_width, page_height);
 
@@ -208,7 +213,11 @@ void draw_current_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int wid
         cairo_pattern_add_color_stop_rgb(linpat, 0, 0.8, 0.3, 0.3);
         cairo_pattern_add_color_stop_rgb(linpat, 1, 0.8, 0.3, 0.3);
 
-        cairo_pattern_t *radpat = cairo_pattern_create_radial(pointer_data.current_page_x + 0.5, pointer_data.current_page_y + 0.5, 0.25, pointer_data.current_page_x + 0.5, pointer_data.current_page_y + 0.5, 10);
+        cairo_pattern_t *radpat;
+        if (presentation)
+            radpat = cairo_pattern_create_radial(pointer_data.presentation_page_x + 0.5, pointer_data.presentation_page_y + 0.5, 0.25, pointer_data.presentation_page_x + 0.5, pointer_data.presentation_page_y + 0.5, 10);
+        else
+            radpat = cairo_pattern_create_radial(pointer_data.current_page_x + 0.5, pointer_data.current_page_y + 0.5, 0.25, pointer_data.current_page_x + 0.5, pointer_data.current_page_y + 0.5, 10);
         cairo_pattern_add_color_stop_rgba(radpat, 0, 0, 0, 0, 1);
         cairo_pattern_add_color_stop_rgba(radpat, 0.5, 0, 0, 0, 0);
 
@@ -226,53 +235,15 @@ void draw_current_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int wid
 }
 
 // This function is called each time the drawing area gets resized
-void draw_next_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int width, int height, [[gnu::unused]]gpointer user_data) {
-    if (!document) return;
+void draw_current_page([[gnu::unused]] GtkDrawingArea *area, cairo_t *cr, int width, int height, [[gnu::unused]] gpointer user_data) {
+    draw_page(cr, width, height, false, false);
+}
 
-    if ((pdf_data.current_page + 1) >= pdf_data.total_pages) return;
-    PopplerPage *page = poppler_document_get_page(document, pdf_data.current_page + 1);
-    if (!page) return;
+// This function is called each time the drawing area gets resized
+void draw_next_page([[gnu::unused]] GtkDrawingArea *area, cairo_t *cr, int width, int height, [[gnu::unused]] gpointer user_data) {
+    draw_page(cr, width, height, true, false);
+}
 
-    // Get page dimensions
-    double page_width, page_height;
-    poppler_page_get_size(page, &page_width, &page_height);
-
-    // Calculate scale to fit the page to the window while maintaining aspect ratio
-    double scale_x = width / page_width;
-    double scale_y = height / page_height;
-    double scale = scale_x < scale_y ? scale_x : scale_y;
-
-    // Calculate the scaled page dimensions
-    double scaled_width = page_width * scale;
-    double scaled_height = page_height * scale;
-
-    // Calculate centering offsets
-    double offset_x = (width - scaled_width) / 2;
-    double offset_y = (height - scaled_height) / 2;
-
-    // Clear entire background with black
-    cairo_set_source_rgb(cr, 0.18, 0.18, 0.18); // Black background
-    cairo_paint(cr);
-
-    // Draw white rectangle for the PDF area
-    cairo_set_source_rgb(cr, 1, 1, 1); // White for PDF background
-    cairo_rectangle(cr, offset_x, offset_y, scaled_width, scaled_height);
-    cairo_fill(cr);
-
-    // Save the current state
-    cairo_save(cr);
-
-    // Center the page
-    cairo_translate(cr, (width - page_width * scale) / 2, (height - page_height * scale) / 2);
-
-    // Apply scaling
-    cairo_scale(cr, scale, scale);
-
-    // Render the page
-    poppler_page_render(page, cr);
-
-    // Restore the previous state
-    cairo_restore(cr);
-
-    g_object_unref(page);
+void draw_presentation_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int width, int height, [[gnu::unused]]gpointer user_data) {
+    draw_page(cr, width, height, false, true);
 }

@@ -5,6 +5,7 @@ typedef struct Pointer {
     gboolean activated;
     gdouble mouse_x, mouse_y;
     gdouble current_page_x, current_page_y;
+    gdouble presentation_page_x, presentation_page_y;
 } Pointer;
 
 extern Pointer pointer_data;

@@ -21,5 +21,9 @@ void pointer_motion_event([[gnu::unused]]GtkEventController *gesture, gdouble x,
 
 void calculate_drawing_area_positions(gdouble offset_x, gdouble offset_y, gdouble page_width, gdouble page_height) {
     pointer_data.current_page_x = pointer_data.mouse_x / (gtk_widget_get_size(current_page_drawing_area, GTK_ORIENTATION_HORIZONTAL) - offset_x*2) * page_width - offset_x/2;
-    pointer_data.current_page_y = pointer_data.mouse_y / (gtk_widget_get_size(current_page_drawing_area, GTK_ORIENTATION_VERTICAL) - offset_y*2) * page_height - offset_y/2;
+    pointer_data.current_page_y = pointer_data.mouse_y / (gtk_widget_get_size(current_page_drawing_area, GTK_ORIENTATION_VERTICAL) - offset_y * 2) * page_height - offset_y / 2;
+    if (data_presentation.in_presentation) {
+        pointer_data.presentation_page_x = pointer_data.mouse_x / (gtk_widget_get_size(presentation_drawing_area, GTK_ORIENTATION_HORIZONTAL) - offset_x*2) * page_width - offset_x/2;
+        pointer_data.presentation_page_y = pointer_data.mouse_y / (gtk_widget_get_size(presentation_drawing_area, GTK_ORIENTATION_VERTICAL) - offset_y * 2) * page_height - offset_y / 2;
+    }
 }
