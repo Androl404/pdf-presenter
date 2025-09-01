@@ -1,3 +1,4 @@
+#include "glib.h"
 #include <gtk/gtk.h>
 #include <poppler.h>
 
@@ -160,21 +161,21 @@ void draw_current_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int wid
     if (!page) return;
 
     // Get page dimensions
-    double page_width, page_height;
+    gdouble page_width, page_height;
     poppler_page_get_size(page, &page_width, &page_height);
 
     // Calculate scale to fit the page to the window while maintaining aspect ratio
-    double scale_x = width / page_width;
-    double scale_y = height / page_height;
-    double scale = scale_x < scale_y ? scale_x : scale_y;
+    gdouble scale_x = width / page_width;
+    gdouble scale_y = height / page_height;
+    gdouble scale = scale_x < scale_y ? scale_x : scale_y;
 
     // Calculate the scaled page dimensions
-    double scaled_width = page_width * scale;
-    double scaled_height = page_height * scale;
+    gdouble scaled_width = page_width * scale;
+    gdouble scaled_height = page_height * scale;
 
     // Calculate centering offsets
-    double offset_x = (width - scaled_width) / 2;
-    double offset_y = (height - scaled_height) / 2;
+    gdouble offset_x = (width - scaled_width) / 2;
+    gdouble offset_y = (height - scaled_height) / 2;
 
     // Clear entire background with black
     cairo_set_source_rgb(cr, 0.18, 0.18, 0.18); // Black background
@@ -199,13 +200,15 @@ void draw_current_page([[gnu::unused]]GtkDrawingArea *area, cairo_t *cr, int wid
 
     // If the pointer is activated
     if (pointer_data.activated) {
-        g_print("Cursor position: %f, %f\n", pointer_data.x, pointer_data.y);
+        // Get coordinates for current page drawing area
+        calculate_drawing_area_positions(offset_x, offset_y, page_width, page_height);
+
         // Draw the pointer
         cairo_pattern_t *linpat = cairo_pattern_create_linear(0, 0, 10, 10);
         cairo_pattern_add_color_stop_rgb(linpat, 0, 0.8, 0.3, 0.3);
         cairo_pattern_add_color_stop_rgb(linpat, 1, 0.8, 0.3, 0.3);
 
-        cairo_pattern_t *radpat = cairo_pattern_create_radial(pointer_data.x/2 + 0.5, pointer_data.y/2 + 0.5, 0.25, pointer_data.x/2 + 0.5, pointer_data.y/2 + 0.5, 10);
+        cairo_pattern_t *radpat = cairo_pattern_create_radial(pointer_data.current_page_x + 0.5, pointer_data.current_page_y + 0.5, 0.25, pointer_data.current_page_x + 0.5, pointer_data.current_page_y + 0.5, 10);
         cairo_pattern_add_color_stop_rgba(radpat, 0, 0, 0, 0, 1);
         cairo_pattern_add_color_stop_rgba(radpat, 0.5, 0, 0, 0, 0);
 
