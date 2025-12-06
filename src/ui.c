@@ -2,7 +2,6 @@
 #include <poppler.h>
 #include <stdio.h>
 
-#include "gdk/gdk.h"
 #include "main.h"
 #include "ui.h"
 #include "pdf.h"
@@ -588,6 +587,7 @@ GtkWidget *get_diplays_box(gpointer user_data) {
 
     GtkWidget *frame_monitors[monitor_number];
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+    GtkWidget *scrolled_window_monitors = gtk_scrolled_window_new();
     for (guint i = 0; i < monitor_number; i++) {
         GdkRectangle geometry = {0};
         gdk_monitor_get_geometry(GDK_MONITOR(g_list_model_get_object(monitors_list, i)), &geometry);
@@ -688,8 +688,10 @@ GtkWidget *get_diplays_box(gpointer user_data) {
     gtk_widget_set_margin_top(button_refresh, 5);
     g_signal_connect(button_refresh, "clicked", G_CALLBACK(refresh_display_list), GTK_WINDOW(user_data));
     gtk_box_append(GTK_BOX(box), button_refresh);
+    gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_window_monitors), box);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window_monitors),  GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 
-    return box;
+    return scrolled_window_monitors;
 }
 
 void on_activate(GtkApplication *app, gpointer user_data) {
