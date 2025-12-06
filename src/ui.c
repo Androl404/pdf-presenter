@@ -568,22 +568,6 @@ GtkWidget *get_diplays_box(gpointer user_data) {
     GListModel *monitors_list = gdk_display_get_monitors(default_display); // Get a list of all of the actuals monitor contained by that display
     guint monitor_number = g_list_model_get_n_items(monitors_list);        // Get the number of monitors
 
-    // Print monitors infos
-    // g_print("Number of monitor(s): %d\n", monitor_number); // Number of monitors
-    // for (guint i = 0; i < monitor_number; i++) {
-    //     GdkRectangle geometry = {0};
-    //     gdk_monitor_get_geometry(GDK_MONITOR(g_list_model_get_object(monitors_list, i)), &geometry);
-    //     g_print("Connector: %s\n", gdk_monitor_get_connector(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("Description: %s\n", gdk_monitor_get_description(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("Geometry:\n    x = %d;\n    y = %d;\n    width = %d;\n    height = %d;\n", geometry.x, geometry.y, geometry.width, geometry.height);
-    //     g_print("Manufacturer: %s\n", gdk_monitor_get_manufacturer(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("Model: %s\n", gdk_monitor_get_model(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("Refresh rate: %d\n", gdk_monitor_get_refresh_rate(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("Scale: %f\n", gdk_monitor_get_scale(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     g_print("Scale factor: %d\n", gdk_monitor_get_scale_factor(GDK_MONITOR(g_list_model_get_object(monitors_list, i))));
-    //     // g_list_model_get_object(monitors_list, i);
-    // }
-
     GtkWidget *frame_monitors[monitor_number];
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
     GtkWidget *scrolled_window_monitors = gtk_scrolled_window_new();
