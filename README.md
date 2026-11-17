@@ -140,7 +140,7 @@ On Windows, there are multiple ways to set the executable icon with GTK and Meso
 - <https://discourse.gnome.org/t/gtk4-icons-on-windows/17129/5>
 - <https://stackoverflow.com/questions/64545983/how-do-i-add-an-icon-to-an-iconless-exe-file>
 
-We decided to use [RessourceHacker](https://www.angusj.com/resourcehacker/) to set the icon of our application following the second previous reference. The ICO file available in `resources/assets/logo_pdf_square/logo_pdf_square_256.ico` is used.
+We decided to use [RessourceHacker](https://www.angusj.com/resourcehacker/ or [Resource Cracker](https://www.pelock.com/products/resource-cracker)) to set the icon of our application following the second previous reference. The ICO file available in `resources/assets/logo_pdf_square/logo_pdf_square_256.ico` is used.
 
 ## Screenshots
 
